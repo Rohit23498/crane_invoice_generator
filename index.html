@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>PDF Maker - Crane Selection</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+
+        select,
+        input,
+        button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            cursor: pointer;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .dynamic-row {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .dynamic-row select,
+        .dynamic-row input {
+            flex: 1;
+        }
+
+        .dynamic-row button {
+            flex: 0.5;
+            background: #dc3545;
+        }
+
+        .dynamic-row button:hover {
+            background: #a71d2a;
+        }
+
+        #tableRows {
+            margin-bottom: 10px;
+        }
+
+        #pdf-preview {
+            display: block;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            width: 800px;
+            margin: auto;
+        }
+
+        #pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        #pdf-table,
+        #pdf-table th,
+        #pdf-table td {
+            border: 1px solid #000;
+        }
+
+        #pdf-table th,
+        #pdf-table td {
+            padding: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Ekta Cranes - Quotation Maker </h2>
+
+    <label>Upload Header Image:</label>
+    <input type="file" id="headerImage" accept="image/*">
+
+    <h3>Crane Selection Table</h3>
+    <div id="tableRows"></div>
+    <button type="button" onclick="addRow()">Add Row</button>
+    <br>
+    <button onclick="generatePDF()">Generate PDF</button>
+
+    <!-- PDF Preview Div -->
+    <div id="pdf-preview">
+        <img id="pdf-header-img" src="" style="width:100%; max-height:150px;">
+        <h3 id="pdf-customer"></h3>
+        <p>Date: <span id="pdf-date"></span></p>
+        <p>Quotation No: <span id="pdf-quotationNo"></span></p>
+        <table id="pdf-table">
+            <thead>
+                <tr>
+                    <th>Crane Type</th>
+                    <th>Capacity (Tonnes)</th>
+                    <th>Qty</th>
+                    <th>Rate (Rs.)</th>
+                    <th>Amt (Rs.)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        // JSON data for cranes and capacities
+        const cranesData = {
+            "Single Girder EOT Crane": ["0.5 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "15 Tonne", "20 Tonne", "Others"],
+            "Double Girder EOT Crane": ["2 Tonne", "5 Tonne", "10 Tonne", "50 Tonne", "100 Tonne", "150 Tonne", "250 Tonne", "Others"],
+            "Underslung EOT Crane": ["0.5 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "Others"],
+            "Single Girder Gantry Crane": ["1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "15 Tonne", "20 Tonne", "Others"],
+            "Double Girder Gantry Crane": ["5 Tonne", "10 Tonne", "50 Tonne", "100 Tonne", "200 Tonne", "500 Tonne", "Others"],
+            "Semi Gantry Crane": ["2 Tonne", "5 Tonne", "10 Tonne", "15 Tonne", "20 Tonne", "50 Tonne", "80 Tonne", "Others"],
+            "Wall Mounted Jib Crane": ["0.5 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "16 Tonne", "Others"],
+            "Pillar Mounted Jib Crane": ["0.5 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "16 Tonne", "Others"],
+            "Container Crane": ["20 Tonne", "45 Tonne", "Others"],
+            "Small Gantry Crane": ["0.25 Tonne", "0.50 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "Others"],
+            "Wire Rope Electric Hoist": ["0.5 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "20 Tonne", "36 Tonne", "Others"],
+            "Electric Chain Hoist": ["0.5 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "15 Tonne", "25 Tonne", "35 Tonne", "Others"]
+        };
+
+        function addRow(crane = '', capacity = '', qty = 0, rate = 0) {
+            const div = document.createElement('div');
+            div.classList.add('dynamic-row');
+
+            // Crane dropdown
+            const craneSelect = document.createElement('select');
+            for (const craneType in cranesData) {
+                const option = document.createElement('option');
+                option.value = craneType;
+                option.textContent = craneType;
+                if (craneType === crane) option.selected = true;
+                craneSelect.appendChild(option);
+            }
+
+            // Capacity dropdown
+            const capacitySelect = document.createElement('select');
+            function updateCapacityOptions(selectedCrane) {
+                capacitySelect.innerHTML = '';
+                cranesData[selectedCrane].forEach(cap => {
+                    const opt = document.createElement('option');
+                    opt.value = cap;
+                    opt.textContent = cap;
+                    if (cap == capacity) opt.selected = true;
+                    capacitySelect.appendChild(opt);
+                });
+            }
+            updateCapacityOptions(craneSelect.value);
+
+            // Show input if 'Other' is selected
+            const otherInput = document.createElement('input');
+            otherInput.type = 'number';
+            otherInput.placeholder = 'Enter capacity';
+            otherInput.style.display = capacitySelect.value === 'Other' ? 'block' : 'none';
+            if (capacitySelect.value !== 'Other') otherInput.value = '';
+
+            capacitySelect.addEventListener('change', () => {
+                if (capacitySelect.value === 'Other') {
+                    otherInput.style.display = 'block';
+                } else {
+                    otherInput.style.display = 'none';
+                    otherInput.value = '';
+                }
+            });
+
+            craneSelect.addEventListener('change', () => {
+                updateCapacityOptions(craneSelect.value);
+                if (capacitySelect.value === 'Other') otherInput.style.display = 'block';
+                else otherInput.style.display = 'none';
+            });
+
+            // Quantity, Rate, Amount
+            const qtyInput = document.createElement('input');
+            qtyInput.type = 'number'; qtyInput.value = qty; qtyInput.placeholder = 'Qty';
+            qtyInput.min = 0; qtyInput.oninput = () => calculateAmt(div);
+
+            const rateInput = document.createElement('input');
+            rateInput.type = 'number'; rateInput.value = rate; rateInput.placeholder = 'Rate';
+            rateInput.min = 0; rateInput.oninput = () => calculateAmt(div);
+
+            const amtInput = document.createElement('input');
+            amtInput.type = 'number'; amtInput.placeholder = 'Amt'; amtInput.value = 0; amtInput.readOnly = true;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button'; removeBtn.textContent = 'Remove';
+            removeBtn.onclick = () => div.remove();
+
+            div.appendChild(craneSelect);
+            div.appendChild(capacitySelect);
+            div.appendChild(otherInput);
+            div.appendChild(qtyInput);
+            div.appendChild(rateInput);
+            div.appendChild(amtInput);
+            div.appendChild(removeBtn);
+
+            document.getElementById('tableRows').appendChild(div);
+        }
+
+        function calculateAmt(row) {
+            const qty = parseFloat(row.children[3].value) || 0;
+            const rate = parseFloat(row.children[4].value) || 0;
+            row.children[5].value = qty * rate;
+        }
+
+        function generatePDF() {
+            const pdfPreview = document.getElementById('pdf-preview');
+            const pdfHeaderImg = document.getElementById('pdf-header-img');
+            const pdfTableBody = document.querySelector('#pdf-table tbody');
+
+            pdfTableBody.innerHTML = '';
+
+            document.querySelectorAll('#tableRows .dynamic-row').forEach(row => {
+                const crane = row.children[0].value;
+                let capacity = row.children[1].value;
+                if (capacity === 'Other') capacity = row.children[2].value || 'N/A';
+                const qty = row.children[3].value;
+                const rate = row.children[4].value;
+                const amt = row.children[5].value;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${crane}</td><td>${capacity}</td><td>${qty}</td><td>${rate}</td><td>${amt}</td>`;
+                pdfTableBody.appendChild(tr);
+            });
+
+            const fileInput = document.getElementById('headerImage').files[0];
+            if (fileInput) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    pdfHeaderImg.src = e.target.result;
+                    renderPDF();
+                };
+                reader.readAsDataURL(fileInput);
+            } else {
+                pdfHeaderImg.src = '';
+                renderPDF();
+            }
+
+            function renderPDF() {
+                html2canvas(pdfPreview, { backgroundColor: '#ffffff', scale: 2 }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/jpeg');
+                    const pdf = new window.jspdf.jsPDF('p', 'pt', 'a4');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save('quotation.pdf');
+                });
+            }
+        }
+
+        addRow(); // initialize with one row
+    </script>
+
+</body>
+
+</html>
