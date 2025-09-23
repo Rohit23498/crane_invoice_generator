@@ -25,11 +25,17 @@
 
         select,
         input,
+        textarea,
         button {
             width: 100%;
             padding: 8px;
             margin-bottom: 10px;
             box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
         }
 
         button {
@@ -99,16 +105,35 @@
 
 <body>
 
-    <h2>Ekta Cranes - Quotation Maker </h2>
+    <h2>EKTA CRANE - Quotation Maker </h2>
 
-    <label>Upload Header Image:</label>
-    <input type="file" id="headerImage" accept="image/*">
+    <label>Quotation Reference Number:</label>
+    <input type="text" id="quotationRef" placeholder="e.g., ECMPL/306/25-26" value="ECMPL/306/25-26">
 
     <label>Date:</label>
     <input type="date" id="quotationDate">
 
     <label>Time:</label>
     <input type="time" id="quotationTime">
+
+    <h3>Client Information</h3>
+    <label>Company Name:</label>
+    <input type="text" id="clientCompanyInput" placeholder="Enter Company Name">
+
+    <label>GST Number:</label>
+    <input type="text" id="clientGSTInput" placeholder="Enter GST Number">
+
+    <label>Address:</label>
+    <textarea id="clientAddressInput" placeholder="Enter Complete Address" rows="3"></textarea>
+
+    <label>Contact Number:</label>
+    <input type="text" id="clientContactInput" placeholder="Enter Contact Number">
+
+    <label>Email Address:</label>
+    <input type="email" id="clientEmailInput" placeholder="Enter Email Address">
+
+    <label>Kind Attention (Contact Person):</label>
+    <input type="text" id="clientAttentionInput" placeholder="Enter Contact Person Name">
 
     <h3>Crane Selection Table</h3>
     <div id="tableRows"></div>
@@ -118,12 +143,90 @@
 
     <!-- PDF Preview Div -->
     <div id="pdf-preview">
-        <img id="pdf-header-img" src="" style="width:100%; max-height:150px;">
-        <h3 id="pdf-customer"></h3>
-        <p>Date: <span id="pdf-date"></span></p>
-        <p>Time: <span id="pdf-time"></span></p>
+        <!-- EKTA CRANE Header -->
+        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #d32f2f; padding-bottom: 15px;">
+            <!-- Company Logo and Name -->
+            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                <div style="width: 60px; height: 60px; background: #d32f2f; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                    <div style="color: white; font-size: 24px; font-weight: bold;">C</div>
+                </div>
+                <div>
+                    <div style="color: #d32f2f; font-size: 18px; font-weight: bold;">EKTA CRANE</div>
+                    <div style="font-size: 10px; color: #666;">ISO 9001:2015</div>
+                </div>
+            </div>
+            
+            <h1 style="color: #d32f2f; font-size: 24px; margin: 5px 0; font-weight: bold;">EKTA CRANE MANUFACTURING PVT. LTD</h1>
+            <p style="font-size: 12px; margin: 2px 0; color: #666;">CIN: U28162MH2025PTC443120</p>
+            
+            <!-- Services -->
+            <p style="font-size: 14px; margin: 8px 0; font-weight: bold;">Design, Manufacturer, Installation & Maintenance of E.O.T. Cranes and Hoist</p>
+            <p style="font-size: 12px; margin: 5px 0; color: #555;">E.O.T. Crane, Goods Lift, Wire rope Hoist, Chain Pully Block & All Types of Crane Repairing & Fabrication, Material Handling System</p>
+            
+            <!-- Addresses -->
+            <div style="display: flex; justify-content: space-between; margin: 10px 0; font-size: 11px;">
+                <div style="text-align: left; flex: 1;">
+                    <strong>Unit No. I:</strong><br>
+                    Gala No.2, Golani Naka, Asjad Commercial Complex,<br>
+                    Vasai (E), Dist - Palghar, MH., India - 401 208.
+                </div>
+                <div style="text-align: right; flex: 1;">
+                    <strong>Unit No. II:</strong><br>
+                    Survey No. 89, H.No.1, Next of Udupi Hotel,<br>
+                    N.H. 8, Vasai (E), Dist - Palghar, MH., 401 208.
+                </div>
+            </div>
+            
+            <!-- Contact Information -->
+            <div style="font-size: 11px; margin: 8px 0;">
+                <strong>Website:</strong> www.ektacrane.com | 
+                <strong>Email:</strong> ektacrane@gmail.com & ektacrane@rediffmail.com | 
+                <strong>Land Line:</strong> 8446081899 / 9324634828 / 9594111331
+            </div>
+        </div>
         
-        <p>Quotation No: <span id="pdf-quotationNo"></span></p>
+        <!-- Quotation Details -->
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+            <div>
+                <strong>Ref. No.</strong> <span id="pdf-quotationRef">ECMPL/306/25-26</span>
+            </div>
+            <div style="text-align: right;">
+                <h3 style="margin: 0; color: #d32f2f;">Sales Quotation Template</h3>
+                <p style="margin: 5px 0 0 0; font-size: 14px;">
+                    <strong>Date:</strong> <span id="pdf-date"></span> | 
+                    <strong>Time:</strong> <span id="pdf-time"></span>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Recipient Section -->
+        <div style="margin-bottom: 20px;">
+            <h4 style="color: #d32f2f; margin-bottom: 10px;">To:</h4>
+            <div style="border: 1px solid #ddd; padding: 15px; background: #f9f9f9;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <div>
+                        <strong>Company Name:</strong> <input type="text" id="clientCompany" placeholder="Enter Company Name" style="border: none; background: transparent; font-weight: bold; width: 300px;">
+                    </div>
+                    <div>
+                        <strong>GST No:</strong> <input type="text" id="clientGST" placeholder="Enter GST Number" style="border: none; background: transparent; width: 150px;">
+                    </div>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <strong>Address:</strong> <input type="text" id="clientAddress" placeholder="Enter Complete Address" style="border: none; background: transparent; width: 100%;">
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <div>
+                        <strong>Contact:</strong> <input type="text" id="clientContact" placeholder="Enter Contact Number" style="border: none; background: transparent; width: 150px;">
+                    </div>
+                    <div>
+                        <strong>Email:</strong> <input type="text" id="clientEmail" placeholder="Enter Email Address" style="border: none; background: transparent; width: 200px;">
+                    </div>
+                </div>
+                <div style="margin-top: 10px; text-align: center;">
+                    <strong>Kind Attention:</strong> <input type="text" id="clientAttention" placeholder="Enter Contact Person Name" style="border: none; background: transparent; font-weight: bold; width: 200px;">
+                </div>
+            </div>
+        </div>
         <table id="pdf-table">
             <thead>
                 <tr>
@@ -437,18 +540,28 @@
 
         function generatePDF() {
             const pdfPreview = document.getElementById('pdf-preview');
-            const pdfHeaderImg = document.getElementById('pdf-header-img');
             const pdfTableBody = document.querySelector('#pdf-table tbody');
             const pdfSubtotal = document.getElementById('pdf-subtotal');
             const pdfDate = document.getElementById('pdf-date');
             const pdfTime = document.getElementById('pdf-time');
+            const pdfQuotationRef = document.getElementById('pdf-quotationRef');
 
             // Set current date and time if not provided
             const quotationDate = document.getElementById('quotationDate').value || new Date().toISOString().split('T')[0];
             const quotationTime = document.getElementById('quotationTime').value || new Date().toTimeString().split(' ')[0].substring(0, 5);
+            const quotationRef = document.getElementById('quotationRef').value || 'ECMPL/306/25-26';
             
             pdfDate.textContent = quotationDate;
             pdfTime.textContent = quotationTime;
+            pdfQuotationRef.textContent = quotationRef;
+
+            // Update client information
+            document.getElementById('clientCompany').value = document.getElementById('clientCompanyInput').value || '';
+            document.getElementById('clientGST').value = document.getElementById('clientGSTInput').value || '';
+            document.getElementById('clientAddress').value = document.getElementById('clientAddressInput').value || '';
+            document.getElementById('clientContact').value = document.getElementById('clientContactInput').value || '';
+            document.getElementById('clientEmail').value = document.getElementById('clientEmailInput').value || '';
+            document.getElementById('clientAttention').value = document.getElementById('clientAttentionInput').value || '';
 
             // Update crane images
             updateCraneImages();
@@ -473,29 +586,15 @@
 
             pdfSubtotal.textContent = subtotal.toLocaleString("en-IN");
 
-            const fileInput = document.getElementById('headerImage').files[0];
-            if (fileInput) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    pdfHeaderImg.src = e.target.result;
-                    renderPDF();
-                };
-                reader.readAsDataURL(fileInput);
-            } else {
-                pdfHeaderImg.src = '';
-                renderPDF();
-            }
-
-            function renderPDF() {
-                html2canvas(pdfPreview, { backgroundColor: '#ffffff', scale: 2 }).then(canvas => {
-                    const imgData = canvas.toDataURL('image/jpeg');
-                    const pdf = new window.jspdf.jsPDF('p', 'pt', 'a4');
-                    const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-                    pdf.save('quotation.pdf');
-                });
-            }
+            // Generate PDF directly
+            html2canvas(pdfPreview, { backgroundColor: '#ffffff', scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/jpeg');
+                const pdf = new window.jspdf.jsPDF('p', 'pt', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('ekta-crane-quotation.pdf');
+            });
         }
 
         // Initialize with default values
