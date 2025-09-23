@@ -191,8 +191,9 @@
         }
 
         .dynamic-row {
-            display: flex;
-            gap: 12px;
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 0.8fr 1fr 1fr 0.8fr auto;
+            gap: 10px;
             margin-bottom: 15px;
             align-items: end;
             background: #f8fafc;
@@ -203,13 +204,17 @@
 
         .dynamic-row select,
         .dynamic-row input {
-            flex: 1;
             margin-bottom: 0;
+            min-width: 0;
         }
 
         .dynamic-row .btn-danger {
-            flex: 0 0 auto;
             padding: 12px 16px;
+            white-space: nowrap;
+        }
+
+        .dynamic-row input[type="number"] {
+            text-align: center;
         }
 
         #tableRows {
@@ -295,8 +300,19 @@
             }
             
             .dynamic-row {
-                flex-direction: column;
+                grid-template-columns: 1fr;
                 gap: 10px;
+            }
+            
+            .dynamic-row > div {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .dynamic-row > div:last-child {
+                flex-direction: row;
+                justify-content: center;
             }
             
             .action-buttons {
@@ -307,6 +323,13 @@
                 font-size: 2rem;
             }
         }
+
+        @media (max-width: 1024px) {
+            .dynamic-row {
+                grid-template-columns: 1.5fr 1fr 0.6fr 0.8fr 0.8fr 0.6fr auto;
+                gap: 8px;
+            }
+        }
     </style>
 </head>
 
@@ -314,7 +337,7 @@
     <div class="container">
         <div class="header">
             <h1>EKTA CRANE</h1>
-            <p>Professional Quotation Maker</p>
+            <p>Professional Quotation </p>
         </div>
         
         <div class="form-container">
@@ -371,7 +394,19 @@
             <!-- Crane Selection Section -->
             <div class="section">
                 <h2 class="section-title">🏗️ Crane Selection</h2>
-                <div id="tableRows"></div>
+                
+                <!-- Column Headers -->
+                <div class="dynamic-row" style="background: #e2e8f0; font-weight: 600; color: #4a5568; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center;">Crane Type</div>
+                    <div style="display: flex; align-items: center;">Capacity</div>
+                    <div style="display: flex; align-items: center;">Custom</div>
+                    <div style="display: flex; align-items: center;">Qty</div>
+                    <div style="display: flex; align-items: center;">Rate (₹)</div>
+                    <div style="display: flex; align-items: center;">Amount (₹)</div>
+                    <div style="display: flex; align-items: center;">Action</div>
+                </div>
+                
+    <div id="tableRows"></div>
                 <div class="action-buttons">
                     <button type="button" onclick="addRow()" class="btn btn-secondary">
                         ➕ Add Row
@@ -389,12 +424,37 @@
         <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #d32f2f; padding-bottom: 15px;">
             <!-- Company Logo and Name -->
             <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
-                <div style="width: 60px; height: 60px; background: #d32f2f; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
-                    <div style="color: white; font-size: 24px; font-weight: bold;">C</div>
+                <div style="width: 80px; height: 80px; margin-right: 20px; position: relative;">
+                    <svg width="80" height="80" viewBox="0 0 80 80" style="position: absolute; top: 0; left: 0;">
+                        <!-- Outer gear-like circle -->
+                        <circle cx="40" cy="40" r="38" fill="#d32f2f" stroke="#d32f2f" stroke-width="2"/>
+                        <!-- Gear teeth pattern -->
+                        <g fill="#d32f2f">
+                            <rect x="38" y="2" width="4" height="8" rx="2"/>
+                            <rect x="70" y="38" width="8" height="4" ry="2"/>
+                            <rect x="38" y="70" width="4" height="8" rx="2"/>
+                            <rect x="2" y="38" width="8" height="4" ry="2"/>
+                            <rect x="65" y="15" width="6" height="4" rx="2" transform="rotate(45 68 17)"/>
+                            <rect x="65" y="61" width="6" height="4" rx="2" transform="rotate(-45 68 63)"/>
+                            <rect x="9" y="15" width="6" height="4" rx="2" transform="rotate(-45 12 17)"/>
+                            <rect x="9" y="61" width="6" height="4" rx="2" transform="rotate(45 12 63)"/>
+                        </g>
+                        <!-- Inner C with crane hook -->
+                        <g fill="white">
+                            <!-- Left half of C -->
+                            <path d="M25 20 Q20 20 20 25 L20 35 Q20 40 25 40 L30 40 L30 25 Q30 20 25 20 Z"/>
+                            <!-- Right half of C -->
+                            <path d="M55 20 Q60 20 60 25 L60 35 Q60 40 55 40 L50 40 L50 25 Q50 20 55 20 Z"/>
+                            <!-- Crane hook -->
+                            <path d="M35 45 L35 55 Q35 60 40 60 L45 60 Q50 60 50 55 L50 50 Q50 45 45 45 L40 45 Q35 45 35 50 Z"/>
+                        </g>
+                        <!-- Registered trademark symbol -->
+                        <text x="65" y="25" fill="white" font-size="8" font-weight="bold" font-family="Arial">®</text>
+                    </svg>
                 </div>
                 <div>
-                    <div style="color: #d32f2f; font-size: 18px; font-weight: bold;">EKTA CRANE</div>
-                    <div style="font-size: 10px; color: #666;">ISO 9001:2015</div>
+                    <div style="color: #d32f2f; font-size: 20px; font-weight: bold; letter-spacing: 1px;">EKTA CRANE</div>
+                    <div style="font-size: 11px; color: #d32f2f; font-weight: 600; letter-spacing: 0.5px;">ISO 9001:2015</div>
                 </div>
             </div>
             
@@ -827,20 +887,20 @@
             pdfSubtotal.textContent = subtotal.toLocaleString("en-IN");
 
             // Generate PDF directly
-            html2canvas(pdfPreview, { backgroundColor: '#ffffff', scale: 2 }).then(canvas => {
-                const imgData = canvas.toDataURL('image/jpeg');
-                const pdf = new window.jspdf.jsPDF('p', 'pt', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                html2canvas(pdfPreview, { backgroundColor: '#ffffff', scale: 2 }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/jpeg');
+                    const pdf = new window.jspdf.jsPDF('p', 'pt', 'a4');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
                 pdf.save('ekta-crane-quotation.pdf');
-            });
+                });
         }
 
         // Initialize with default values
         document.getElementById('quotationDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('quotationTime').value = new Date().toTimeString().split(' ')[0].substring(0, 5);
-        
+
         addRow(); // initialize with one row
     </script>
 
