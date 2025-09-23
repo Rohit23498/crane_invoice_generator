@@ -104,6 +104,12 @@
     <label>Upload Header Image:</label>
     <input type="file" id="headerImage" accept="image/*">
 
+    <label>Date:</label>
+    <input type="date" id="quotationDate">
+
+    <label>Time:</label>
+    <input type="time" id="quotationTime">
+
     <h3>Crane Selection Table</h3>
     <div id="tableRows"></div>
     <button type="button" onclick="addRow()">Add Row</button>
@@ -115,6 +121,7 @@
         <img id="pdf-header-img" src="" style="width:100%; max-height:150px;">
         <h3 id="pdf-customer"></h3>
         <p>Date: <span id="pdf-date"></span></p>
+        <p>Time: <span id="pdf-time"></span></p>
         
         <p>Quotation No: <span id="pdf-quotationNo"></span></p>
         <table id="pdf-table">
@@ -137,14 +144,11 @@
         </table>
         <h4>Terms & Conditions</h4>
         <ul style="font-size:12px; line-height:1.5;">
-            <li><b>PAYMENTS:</b> 50% ADVANCE WITH PURCHASE ORDER & 40% BEFORE DISPATCH & 10% BALANCE AFTER TESTING</li>
-            <li><b>DELIVERY PERIOD:</b> WITHIN 3-4 MONTH WORKING DAYS FROM THE DATE OF CONFIRMED PO ALONG WITH ADVANCE
-            </li>
-            <li><b>TAXES & DUTIES:</b> 18% GST WILL BE EXTRA</li>
-            <li><b>P & F:</b> PACKING, FORWARDING, HYDRA AND TRANSPORTATION CHARGES WILL BE EXTRA</li>
-            <li><b>WARRANTY:</b> 1 YEAR DOMESTIC WARRANTY, INCLUDING ONLY PARTS & LABOR DEFECTS</li>
+            <li><b>WARRANTY:</b> 1 YEAR DOMESTIC WARRANTY, INCLUDING ONLY PARTS & LABOR DEFECTS BUT NOT THE DEFECTS DUE TO EXTERNAL CAUSES ACCIDENTAL OR PHYSICAL DAMAGES</li>
             <li><b>BANK DETAILS:</b> BANK OF INDIA A/C: 017820110000188 (IFSC: BKID0000178) BRANCH (VASAI WEST)</li>
             <li><b>GST NO:</b> 27AAICE7407Q1Z0 | <b>PAN No:</b> AAICE7407Q</li>
+            <li><b>PAYMENTS:</b> 50% ADVANCE WITH PURCHASE ORDER & 40% BEFORE DISPATCH & 10% BALANCE AFTER TESTING</li>
+            <li><b>DELIVERY PERIOD:</b> WITHIN 3-4 MONTH WORKING DAYS FROM THE DATE OF CONFIRMED PO ALONG WITH ADVANCE</li>
         </ul>
         <p>This is computer generated Quotation does not require any signature and stamp.</p>
     </div>
@@ -254,6 +258,15 @@
             const pdfHeaderImg = document.getElementById('pdf-header-img');
             const pdfTableBody = document.querySelector('#pdf-table tbody');
             const pdfSubtotal = document.getElementById('pdf-subtotal');
+            const pdfDate = document.getElementById('pdf-date');
+            const pdfTime = document.getElementById('pdf-time');
+
+            // Set current date and time if not provided
+            const quotationDate = document.getElementById('quotationDate').value || new Date().toISOString().split('T')[0];
+            const quotationTime = document.getElementById('quotationTime').value || new Date().toTimeString().split(' ')[0].substring(0, 5);
+            
+            pdfDate.textContent = quotationDate;
+            pdfTime.textContent = quotationTime;
 
             pdfTableBody.innerHTML = '';
             let subtotal = 0;
@@ -300,6 +313,10 @@
             }
         }
 
+        // Initialize with default values
+        document.getElementById('quotationDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('quotationTime').value = new Date().toTimeString().split(' ')[0].substring(0, 5);
+        
         addRow(); // initialize with one row
     </script>
 
