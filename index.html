@@ -115,6 +115,7 @@
         <img id="pdf-header-img" src="" style="width:100%; max-height:150px;">
         <h3 id="pdf-customer"></h3>
         <p>Date: <span id="pdf-date"></span></p>
+        
         <p>Quotation No: <span id="pdf-quotationNo"></span></p>
         <table id="pdf-table">
             <thead>
@@ -127,7 +128,25 @@
                 </tr>
             </thead>
             <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" style="text-align:right; font-weight:bold;">Sub Total</td>
+                    <td id="pdf-subtotal" style="font-weight:bold;"></td>
+                </tr>
+            </tfoot>
         </table>
+        <h4>Terms & Conditions</h4>
+        <ul style="font-size:12px; line-height:1.5;">
+            <li><b>PAYMENTS:</b> 50% ADVANCE WITH PURCHASE ORDER & 40% BEFORE DISPATCH & 10% BALANCE AFTER TESTING</li>
+            <li><b>DELIVERY PERIOD:</b> WITHIN 3-4 MONTH WORKING DAYS FROM THE DATE OF CONFIRMED PO ALONG WITH ADVANCE
+            </li>
+            <li><b>TAXES & DUTIES:</b> 18% GST WILL BE EXTRA</li>
+            <li><b>P & F:</b> PACKING, FORWARDING, HYDRA AND TRANSPORTATION CHARGES WILL BE EXTRA</li>
+            <li><b>WARRANTY:</b> 1 YEAR DOMESTIC WARRANTY, INCLUDING ONLY PARTS & LABOR DEFECTS</li>
+            <li><b>BANK DETAILS:</b> BANK OF INDIA A/C: 017820110000188 (IFSC: BKID0000178) BRANCH (VASAI WEST)</li>
+            <li><b>GST NO:</b> 27AAICE7407Q1Z0 | <b>PAN No:</b> AAICE7407Q</li>
+        </ul>
+        <p>This is computer generated Quotation does not require any signature and stamp.</p>
     </div>
 
     <script>
@@ -234,8 +253,10 @@
             const pdfPreview = document.getElementById('pdf-preview');
             const pdfHeaderImg = document.getElementById('pdf-header-img');
             const pdfTableBody = document.querySelector('#pdf-table tbody');
+            const pdfSubtotal = document.getElementById('pdf-subtotal');
 
             pdfTableBody.innerHTML = '';
+            let subtotal = 0;
 
             document.querySelectorAll('#tableRows .dynamic-row').forEach(row => {
                 const crane = row.children[0].value;
@@ -245,10 +266,14 @@
                 const rate = row.children[4].value;
                 const amt = row.children[5].value;
 
+                subtotal += parseFloat(amt) || 0;
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${crane}</td><td>${capacity}</td><td>${qty}</td><td>${rate}</td><td>${amt}</td>`;
                 pdfTableBody.appendChild(tr);
             });
+
+            pdfSubtotal.textContent = subtotal.toLocaleString("en-IN");
 
             const fileInput = document.getElementById('headerImage').files[0];
             if (fileInput) {
