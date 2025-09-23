@@ -142,6 +142,15 @@
                 </tr>
             </tfoot>
         </table>
+        
+        <!-- Crane Images Section -->
+        <div id="crane-images-section" style="margin: 20px 0; text-align: center;">
+            <h4>Selected Crane Images</h4>
+            <div id="crane-images-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+                <!-- Images will be dynamically added here -->
+            </div>
+        </div>
+        
         <h4>Terms & Conditions</h4>
         <ul style="font-size:12px; line-height:1.5;">
             <li><b>WARRANTY:</b> 1 YEAR DOMESTIC WARRANTY, INCLUDING ONLY PARTS & LABOR DEFECTS BUT NOT THE DEFECTS DUE TO EXTERNAL CAUSES ACCIDENTAL OR PHYSICAL DAMAGES</li>
@@ -154,6 +163,119 @@
     </div>
 
     <script>
+        // Crane images mapping
+        const craneImages = {
+            "Single Girder EOT Crane": {
+                "0.5 Tonne": "https://via.placeholder.com/200x150/4CAF50/white?text=Single+Girder+EOT+0.5T",
+                "1 Tonne": "https://via.placeholder.com/200x150/4CAF50/white?text=Single+Girder+EOT+1T",
+                "2 Tonne": "https://via.placeholder.com/200x150/4CAF50/white?text=Single+Girder+EOT+2T",
+                "5 Tonne": "https://via.placeholder.com/200x150/4CAF50/white?text=Single+Girder+EOT+5T",
+                "10 Tonne": "https://via.placeholder.com/200x150/4CAF50/white?text=Single+Girder+EOT+10T",
+                "15 Tonne": "https://via.placeholder.com/200x150/4CAF50/white?text=Single+Girder+EOT+15T",
+                "20 Tonne": "https://via.placeholder.com/200x150/4CAF50/white?text=Single+Girder+EOT+20T",
+                "Others": "https://via.placeholder.com/200x150/4CAF50/white?text=Single+Girder+EOT+Custom"
+            },
+            "Double Girder EOT Crane": {
+                "2 Tonne": "https://via.placeholder.com/200x150/2196F3/white?text=Double+Girder+EOT+2T",
+                "5 Tonne": "https://via.placeholder.com/200x150/2196F3/white?text=Double+Girder+EOT+5T",
+                "10 Tonne": "https://via.placeholder.com/200x150/2196F3/white?text=Double+Girder+EOT+10T",
+                "50 Tonne": "https://via.placeholder.com/200x150/2196F3/white?text=Double+Girder+EOT+50T",
+                "100 Tonne": "https://via.placeholder.com/200x150/2196F3/white?text=Double+Girder+EOT+100T",
+                "150 Tonne": "https://via.placeholder.com/200x150/2196F3/white?text=Double+Girder+EOT+150T",
+                "250 Tonne": "https://via.placeholder.com/200x150/2196F3/white?text=Double+Girder+EOT+250T",
+                "Others": "https://via.placeholder.com/200x150/2196F3/white?text=Double+Girder+EOT+Custom"
+            },
+            "Underslung EOT Crane": {
+                "0.5 Tonne": "https://via.placeholder.com/200x150/FF9800/white?text=Underslung+EOT+0.5T",
+                "1 Tonne": "https://via.placeholder.com/200x150/FF9800/white?text=Underslung+EOT+1T",
+                "2 Tonne": "https://via.placeholder.com/200x150/FF9800/white?text=Underslung+EOT+2T",
+                "5 Tonne": "https://via.placeholder.com/200x150/FF9800/white?text=Underslung+EOT+5T",
+                "10 Tonne": "https://via.placeholder.com/200x150/FF9800/white?text=Underslung+EOT+10T",
+                "Others": "https://via.placeholder.com/200x150/FF9800/white?text=Underslung+EOT+Custom"
+            },
+            "Single Girder Gantry Crane": {
+                "1 Tonne": "https://via.placeholder.com/200x150/9C27B0/white?text=Single+Girder+Gantry+1T",
+                "2 Tonne": "https://via.placeholder.com/200x150/9C27B0/white?text=Single+Girder+Gantry+2T",
+                "5 Tonne": "https://via.placeholder.com/200x150/9C27B0/white?text=Single+Girder+Gantry+5T",
+                "10 Tonne": "https://via.placeholder.com/200x150/9C27B0/white?text=Single+Girder+Gantry+10T",
+                "15 Tonne": "https://via.placeholder.com/200x150/9C27B0/white?text=Single+Girder+Gantry+15T",
+                "20 Tonne": "https://via.placeholder.com/200x150/9C27B0/white?text=Single+Girder+Gantry+20T",
+                "Others": "https://via.placeholder.com/200x150/9C27B0/white?text=Single+Girder+Gantry+Custom"
+            },
+            "Double Girder Gantry Crane": {
+                "5 Tonne": "https://via.placeholder.com/200x150/E91E63/white?text=Double+Girder+Gantry+5T",
+                "10 Tonne": "https://via.placeholder.com/200x150/E91E63/white?text=Double+Girder+Gantry+10T",
+                "50 Tonne": "https://via.placeholder.com/200x150/E91E63/white?text=Double+Girder+Gantry+50T",
+                "100 Tonne": "https://via.placeholder.com/200x150/E91E63/white?text=Double+Girder+Gantry+100T",
+                "200 Tonne": "https://via.placeholder.com/200x150/E91E63/white?text=Double+Girder+Gantry+200T",
+                "500 Tonne": "https://via.placeholder.com/200x150/E91E63/white?text=Double+Girder+Gantry+500T",
+                "Others": "https://via.placeholder.com/200x150/E91E63/white?text=Double+Girder+Gantry+Custom"
+            },
+            "Semi Gantry Crane": {
+                "2 Tonne": "https://via.placeholder.com/200x150/795548/white?text=Semi+Gantry+2T",
+                "5 Tonne": "https://via.placeholder.com/200x150/795548/white?text=Semi+Gantry+5T",
+                "10 Tonne": "https://via.placeholder.com/200x150/795548/white?text=Semi+Gantry+10T",
+                "15 Tonne": "https://via.placeholder.com/200x150/795548/white?text=Semi+Gantry+15T",
+                "20 Tonne": "https://via.placeholder.com/200x150/795548/white?text=Semi+Gantry+20T",
+                "50 Tonne": "https://via.placeholder.com/200x150/795548/white?text=Semi+Gantry+50T",
+                "80 Tonne": "https://via.placeholder.com/200x150/795548/white?text=Semi+Gantry+80T",
+                "Others": "https://via.placeholder.com/200x150/795548/white?text=Semi+Gantry+Custom"
+            },
+            "Wall Mounted Jib Crane": {
+                "0.5 Tonne": "https://via.placeholder.com/200x150/607D8B/white?text=Wall+Jib+0.5T",
+                "1 Tonne": "https://via.placeholder.com/200x150/607D8B/white?text=Wall+Jib+1T",
+                "2 Tonne": "https://via.placeholder.com/200x150/607D8B/white?text=Wall+Jib+2T",
+                "5 Tonne": "https://via.placeholder.com/200x150/607D8B/white?text=Wall+Jib+5T",
+                "10 Tonne": "https://via.placeholder.com/200x150/607D8B/white?text=Wall+Jib+10T",
+                "16 Tonne": "https://via.placeholder.com/200x150/607D8B/white?text=Wall+Jib+16T",
+                "Others": "https://via.placeholder.com/200x150/607D8B/white?text=Wall+Jib+Custom"
+            },
+            "Pillar Mounted Jib Crane": {
+                "0.5 Tonne": "https://via.placeholder.com/200x150/3F51B5/white?text=Pillar+Jib+0.5T",
+                "1 Tonne": "https://via.placeholder.com/200x150/3F51B5/white?text=Pillar+Jib+1T",
+                "2 Tonne": "https://via.placeholder.com/200x150/3F51B5/white?text=Pillar+Jib+2T",
+                "5 Tonne": "https://via.placeholder.com/200x150/3F51B5/white?text=Pillar+Jib+5T",
+                "10 Tonne": "https://via.placeholder.com/200x150/3F51B5/white?text=Pillar+Jib+10T",
+                "16 Tonne": "https://via.placeholder.com/200x150/3F51B5/white?text=Pillar+Jib+16T",
+                "Others": "https://via.placeholder.com/200x150/3F51B5/white?text=Pillar+Jib+Custom"
+            },
+            "Container Crane": {
+                "20 Tonne": "https://via.placeholder.com/200x150/FF5722/white?text=Container+20T",
+                "45 Tonne": "https://via.placeholder.com/200x150/FF5722/white?text=Container+45T",
+                "Others": "https://via.placeholder.com/200x150/FF5722/white?text=Container+Custom"
+            },
+            "Small Gantry Crane": {
+                "0.25 Tonne": "https://via.placeholder.com/200x150/8BC34A/white?text=Small+Gantry+0.25T",
+                "0.50 Tonne": "https://via.placeholder.com/200x150/8BC34A/white?text=Small+Gantry+0.5T",
+                "1 Tonne": "https://via.placeholder.com/200x150/8BC34A/white?text=Small+Gantry+1T",
+                "2 Tonne": "https://via.placeholder.com/200x150/8BC34A/white?text=Small+Gantry+2T",
+                "5 Tonne": "https://via.placeholder.com/200x150/8BC34A/white?text=Small+Gantry+5T",
+                "10 Tonne": "https://via.placeholder.com/200x150/8BC34A/white?text=Small+Gantry+10T",
+                "Others": "https://via.placeholder.com/200x150/8BC34A/white?text=Small+Gantry+Custom"
+            },
+            "Wire Rope Electric Hoist": {
+                "0.5 Tonne": "https://via.placeholder.com/200x150/00BCD4/white?text=Wire+Rope+0.5T",
+                "1 Tonne": "https://via.placeholder.com/200x150/00BCD4/white?text=Wire+Rope+1T",
+                "2 Tonne": "https://via.placeholder.com/200x150/00BCD4/white?text=Wire+Rope+2T",
+                "5 Tonne": "https://via.placeholder.com/200x150/00BCD4/white?text=Wire+Rope+5T",
+                "10 Tonne": "https://via.placeholder.com/200x150/00BCD4/white?text=Wire+Rope+10T",
+                "20 Tonne": "https://via.placeholder.com/200x150/00BCD4/white?text=Wire+Rope+20T",
+                "36 Tonne": "https://via.placeholder.com/200x150/00BCD4/white?text=Wire+Rope+36T",
+                "Others": "https://via.placeholder.com/200x150/00BCD4/white?text=Wire+Rope+Custom"
+            },
+            "Electric Chain Hoist": {
+                "0.5 Tonne": "https://via.placeholder.com/200x150/CDDC39/white?text=Chain+Hoist+0.5T",
+                "1 Tonne": "https://via.placeholder.com/200x150/CDDC39/white?text=Chain+Hoist+1T",
+                "2 Tonne": "https://via.placeholder.com/200x150/CDDC39/white?text=Chain+Hoist+2T",
+                "5 Tonne": "https://via.placeholder.com/200x150/CDDC39/white?text=Chain+Hoist+5T",
+                "10 Tonne": "https://via.placeholder.com/200x150/CDDC39/white?text=Chain+Hoist+10T",
+                "15 Tonne": "https://via.placeholder.com/200x150/CDDC39/white?text=Chain+Hoist+15T",
+                "25 Tonne": "https://via.placeholder.com/200x150/CDDC39/white?text=Chain+Hoist+25T",
+                "35 Tonne": "https://via.placeholder.com/200x150/CDDC39/white?text=Chain+Hoist+35T",
+                "Others": "https://via.placeholder.com/200x150/CDDC39/white?text=Chain+Hoist+Custom"
+            }
+        };
+
         // JSON data for cranes and capacities
         const cranesData = {
             "Single Girder EOT Crane": ["0.5 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "15 Tonne", "20 Tonne", "Others"],
@@ -218,6 +340,21 @@
                 updateCapacityOptions(craneSelect.value);
                 if (capacitySelect.value === 'Other') otherInput.style.display = 'block';
                 else otherInput.style.display = 'none';
+                updateCraneImages(); // Update images when crane changes
+            });
+
+            capacitySelect.addEventListener('change', () => {
+                if (capacitySelect.value === 'Other') {
+                    otherInput.style.display = 'block';
+                } else {
+                    otherInput.style.display = 'none';
+                    otherInput.value = '';
+                }
+                updateCraneImages(); // Update images when capacity changes
+            });
+
+            otherInput.addEventListener('input', () => {
+                updateCraneImages(); // Update images when custom capacity is entered
             });
 
             // Quantity, Rate, Amount
@@ -234,7 +371,10 @@
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button'; removeBtn.textContent = 'Remove';
-            removeBtn.onclick = () => div.remove();
+            removeBtn.onclick = () => {
+                div.remove();
+                updateCraneImages(); // Update images when row is removed
+            };
 
             div.appendChild(craneSelect);
             div.appendChild(capacitySelect);
@@ -253,6 +393,48 @@
             row.children[5].value = qty * rate;
         }
 
+        function updateCraneImages() {
+            const container = document.getElementById('crane-images-container');
+            container.innerHTML = '';
+            
+            // Get unique crane selections
+            const selectedCranes = new Set();
+            document.querySelectorAll('#tableRows .dynamic-row').forEach(row => {
+                const crane = row.children[0].value;
+                let capacity = row.children[1].value;
+                if (capacity === 'Other') capacity = row.children[2].value || 'Others';
+                selectedCranes.add(JSON.stringify({crane, capacity}));
+            });
+
+            selectedCranes.forEach(craneData => {
+                const {crane, capacity} = JSON.parse(craneData);
+                const imageUrl = craneImages[crane] && craneImages[crane][capacity] 
+                    ? craneImages[crane][capacity] 
+                    : 'https://via.placeholder.com/200x150/CCCCCC/white?text=No+Image';
+                
+                const imageDiv = document.createElement('div');
+                imageDiv.style.textAlign = 'center';
+                imageDiv.style.margin = '5px';
+                
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.style.width = '200px';
+                img.style.height = '150px';
+                img.style.border = '1px solid #ddd';
+                img.style.borderRadius = '5px';
+                
+                const label = document.createElement('div');
+                label.textContent = `${crane} - ${capacity}`;
+                label.style.fontSize = '12px';
+                label.style.marginTop = '5px';
+                label.style.fontWeight = 'bold';
+                
+                imageDiv.appendChild(img);
+                imageDiv.appendChild(label);
+                container.appendChild(imageDiv);
+            });
+        }
+
         function generatePDF() {
             const pdfPreview = document.getElementById('pdf-preview');
             const pdfHeaderImg = document.getElementById('pdf-header-img');
@@ -267,6 +449,9 @@
             
             pdfDate.textContent = quotationDate;
             pdfTime.textContent = quotationTime;
+
+            // Update crane images
+            updateCraneImages();
 
             pdfTableBody.innerHTML = '';
             let subtotal = 0;
