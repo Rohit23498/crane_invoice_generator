@@ -964,30 +964,52 @@
                 }
             }
             
-            // Page 1: Header and Company Information
-            addWrappedText('EKTA CRANE MANUFACTURING PVT. LTD', 24, true, '#d32f2f');
-            currentY += 10;
-            addWrappedText('Design, Manufacturer, Installation & Maintenance of E.O.T. Cranes and Hoist', 14, true);
-            addWrappedText('E.O.T. Crane, Goods Lift, Wire rope Hoist, Chain Pully Block & All Types of Crane Repairing & Fabrication, Material Handling System', 10, false, '#555555');
+            // Page 1: Header and Company Information (matching UI exactly)
+            
+            // EKTA CRANE Logo and Header (matching UI design)
+            addWrappedText('EKTA CRANE MANUFACTURING PVT. LTD', 20, true, '#d32f2f');
+            currentY += 5;
+            addWrappedText('CIN: U28162MH2025PTC443120', 10, false, '#666666');
             currentY += 10;
             
-            // Company addresses
-            addWrappedText('Unit No. I: Gala No.2, Golani Naka, Asjad Commercial Complex, Vasai (E), Dist - Palghar, MH., India - 401 208.', 10);
-            addWrappedText('Unit No. II: Survey No. 89, H.No.1, Next of Udupi Hotel, N.H. 8, Vasai (E), Dist - Palghar, MH., 401 208.', 10);
-            addWrappedText('Website: www.ektacrane.com | Email: ektacrane@gmail.com | Land Line: 8446081899 / 9324634828 / 9594111331', 10);
+            // Services (matching UI)
+            addWrappedText('Design, Manufacturer, Installation & Maintenance of E.O.T. Cranes and Hoist', 12, true);
+            addWrappedText('E.O.T. Crane, Goods Lift, Wire rope Hoist, Chain Pully Block & All Types of Crane Repairing & Fabrication, Material Handling System', 10, false, '#555555');
+            currentY += 15;
+            
+            // Company addresses (matching UI layout)
+            addWrappedText('Unit No. I: Gala No.2, Golani Naka, Asjad Commercial Complex, Vasai (E), Dist - Palghar, MH., India - 401 208.', 9);
+            addWrappedText('Unit No. II: Survey No. 89, H.No.1, Next of Udupi Hotel, N.H. 8, Vasai (E), Dist - Palghar, MH., 401 208.', 9);
+            addWrappedText('Website: www.ektacrane.com | Email: ektacrane@gmail.com & ektacrane@rediffmail.com | Land Line: 8446081899 / 9324634828 / 9594111331', 9);
             currentY += 20;
             
-            // Quotation details
+            // Quotation details (matching UI layout)
             const quotationRef = document.getElementById('quotationRef').value || 'ECMPL/306/25-26';
             const quotationDate = document.getElementById('quotationDate').value || new Date().toISOString().split('T')[0];
             const quotationTime = document.getElementById('quotationTime').value || new Date().toTimeString().split(' ')[0].substring(0, 5);
             
-            addWrappedText(`Ref. No: ${quotationRef}`, 12, true);
+            // Draw a line separator like in UI
+            pdf.setDrawColor(211, 47, 47);
+            pdf.setLineWidth(2);
+            pdf.line(margin, currentY, pageWidth - margin, currentY);
+            currentY += 15;
+            
+            addWrappedText(`Ref. No. ${quotationRef}`, 12, true);
+            addWrappedText(`Sales Quotation Template`, 14, true, '#d32f2f');
             addWrappedText(`Date: ${quotationDate} | Time: ${quotationTime}`, 12, true);
             currentY += 20;
             
-            // Client information
-            addWrappedText('To:', 14, true, '#d32f2f');
+            // Client information (matching UI box design)
+            addWrappedText('To:', 12, true, '#d32f2f');
+            currentY += 10;
+            
+            // Draw client info box (matching UI)
+            pdf.setFillColor(249, 249, 249);
+            pdf.setDrawColor(221, 221, 221);
+            pdf.setLineWidth(1);
+            pdf.rect(margin, currentY, contentWidth, 80, 'FD');
+            currentY += 10;
+            
             const clientCompany = document.getElementById('clientCompanyInput').value || '';
             const clientGST = document.getElementById('clientGSTInput').value || '';
             const clientAddress = document.getElementById('clientAddressInput').value || '';
@@ -995,29 +1017,29 @@
             const clientEmail = document.getElementById('clientEmailInput').value || '';
             const clientAttention = document.getElementById('clientAttentionInput').value || '';
             
-            if (clientCompany) addWrappedText(`Company: ${clientCompany}`, 12, true);
-            if (clientGST) addWrappedText(`GST No: ${clientGST}`, 12);
-            if (clientAddress) addWrappedText(`Address: ${clientAddress}`, 12);
-            if (clientContact) addWrappedText(`Contact: ${clientContact}`, 12);
-            if (clientEmail) addWrappedText(`Email: ${clientEmail}`, 12);
-            if (clientAttention) addWrappedText(`Kind Attention: ${clientAttention}`, 12, true);
-            currentY += 20;
+            if (clientCompany) addWrappedText(`Company Name: ${clientCompany}`, 10, true);
+            if (clientGST) addWrappedText(`GST No: ${clientGST}`, 10);
+            if (clientAddress) addWrappedText(`Address: ${clientAddress}`, 10);
+            if (clientContact) addWrappedText(`Contact: ${clientContact}`, 10);
+            if (clientEmail) addWrappedText(`Email: ${clientEmail}`, 10);
+            if (clientAttention) addWrappedText(`Kind Attention: ${clientAttention}`, 10, true);
+            
+            currentY += 90;
             
             // Check if we need a new page for the table
             if (!checkPageSpace(100)) {
                 ensureContentBeforeNewPage(100);
             }
             
-            // Crane selection table
-            addWrappedText('CRANE SELECTION', 16, true, '#d32f2f');
+            // Crane selection table (matching UI exactly)
+            addWrappedText('CRANE SELECTION', 14, true, '#d32f2f');
             currentY += 10;
             
-            // Table headers
-            const tableHeaders = ['Crane Type', 'Capacity', 'Qty', 'Rate (₹)', 'Amount (₹)'];
+            // Table headers (matching UI table)
+            const tableHeaders = ['Crane Type', 'Capacity (Tonnes)', 'Qty', 'Rate (Rs.)', 'Amt (Rs.)'];
             const colWidths = [contentWidth * 0.35, contentWidth * 0.2, contentWidth * 0.1, contentWidth * 0.15, contentWidth * 0.2];
-            let tableStartY = currentY;
             
-            // Draw table headers
+            // Draw table headers (matching UI red header)
             pdf.setFillColor(211, 47, 47);
             pdf.rect(margin, currentY, contentWidth, 25, 'F');
             pdf.setTextColor(255, 255, 255);
@@ -1090,15 +1112,23 @@
                 currentY += 20;
             });
             
-            // Subtotal row
+            // Subtotal row (matching UI table footer)
             if (!checkPageSpace(30)) {
                 ensureContentBeforeNewPage(30);
             }
             
-            currentY += 10;
-            pdf.setFontSize(12);
+            // Draw subtotal row (matching UI table footer)
+            pdf.setFillColor(248, 249, 250);
+            pdf.rect(margin, currentY, contentWidth, 25, 'F');
+            pdf.setDrawColor(0, 0, 0);
+            pdf.setLineWidth(1);
+            pdf.rect(margin, currentY, contentWidth, 25, 'S');
+            
+            currentY += 5;
+            pdf.setFontSize(10);
             pdf.setFont('helvetica', 'bold');
-            pdf.text(`Sub Total: ₹${subtotal.toLocaleString("en-IN")}`, pageWidth - margin - 100, currentY);
+            pdf.text('Sub Total', margin + 5, currentY + 15);
+            pdf.text(`₹${subtotal.toLocaleString("en-IN")}`, pageWidth - margin - 50, currentY + 15);
             currentY += 30;
             
             // Crane Images Section
@@ -1110,7 +1140,7 @@
                     ensureContentBeforeNewPage(100);
                 }
                 
-                addWrappedText('SELECTED CRANE IMAGES', 16, true, '#d32f2f');
+                addWrappedText('Selected Crane Images', 14, true, '#d32f2f');
                 currentY += 20;
                 
                 // Generate images for each crane
@@ -1168,8 +1198,8 @@
                     ensureContentBeforeNewPage(200);
                 }
                 
-                addWrappedText('TERMS & CONDITIONS', 16, true, '#d32f2f');
-                currentY += 20;
+                addWrappedText('Terms & Conditions', 14, true, '#d32f2f');
+                currentY += 15;
                 
                 const terms = [
                     'WARRANTY: 1 YEAR DOMESTIC WARRANTY, INCLUDING ONLY PARTS & LABOR DEFECTS BUT NOT THE DEFECTS DUE TO EXTERNAL CAUSES ACCIDENTAL OR PHYSICAL DAMAGES',
@@ -1179,6 +1209,7 @@
                     'DELIVERY PERIOD: WITHIN 3-4 MONTH WORKING DAYS FROM THE DATE OF CONFIRMED PO ALONG WITH ADVANCE'
                 ];
                 
+                // Draw terms list (matching UI bullet points)
                 terms.forEach(term => {
                     if (!checkPageSpace(30)) {
                         ensureContentBeforeNewPage(30);
@@ -1188,7 +1219,15 @@
                 });
                 
                 currentY += 20;
-                addWrappedText('This is computer generated Quotation does not require any signature and stamp.', 10, true, '#666666');
+                
+                // Add the disclaimer (matching UI center alignment)
+                pdf.setFontSize(10);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(102, 102, 102);
+                const disclaimerText = 'This is computer generated Quotation does not require any signature and stamp.';
+                const textWidth = pdf.getTextWidth(disclaimerText);
+                const centerX = (pageWidth - textWidth) / 2;
+                pdf.text(disclaimerText, centerX, currentY);
                 
                 // Save the PDF
                 pdf.save('ekta-crane-quotation.pdf');
