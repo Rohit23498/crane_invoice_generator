@@ -393,7 +393,7 @@ textarea {
 /* === Dynamic Row Styling === */
 .dynamic-row {
     display: grid !important;
-    grid-template-columns: 2.5fr 1.5fr 1fr 1.2fr !important;
+    grid-template-columns: 2fr 1.5fr 0.8fr 1fr 1fr !important; /* Updated to 5 columns */
     gap: var(--spacing-lg) !important;
     margin-bottom: var(--spacing-lg) !important;
     align-items: end !important;
@@ -527,7 +527,7 @@ textarea {
     }
     
     .dynamic-row {
-        grid-template-columns: 2fr 1.2fr 0.8fr 1fr !important;
+        grid-template-columns: 2fr 1.2fr 0.8fr 1fr 1fr !important; /* Updated to 5 columns */
         gap: var(--spacing-md) !important;
     }
 }

@@ -201,7 +201,7 @@
 
         .dynamic-row {
             display: grid;
-            grid-template-columns: 2.5fr 1.5fr 1fr 1.2fr;
+            grid-template-columns: 2fr 1.5fr 0.8fr 1fr 1fr;
             gap: 15px;
             margin-bottom: 15px;
             align-items: end;
@@ -409,7 +409,7 @@
 
         @media (max-width: 1024px) {
             .dynamic-row {
-                grid-template-columns: 2fr 1.2fr 0.8fr 1fr;
+                grid-template-columns: 2fr 1.2fr 0.8fr 1fr 1fr;
                 gap: 8px;
             }
         }
@@ -466,6 +466,44 @@
                 font-size: 11px;
                 padding: 6px 4px;
             }
+        }
+        
+        /* Enhanced PDF Preview styles for better alignment */
+        #pdf-preview {
+            page-break-inside: avoid;
+        }
+        
+        #pdf-preview table {
+            page-break-inside: auto;
+        }
+        
+        #pdf-preview tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        
+        #pdf-preview td {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        
+        /* Better text alignment in PDF */
+        #pdf-preview .client-info-grid input,
+        #pdf-preview .quotation-details-grid input {
+            text-align: center !important;
+            font-weight: 600 !important;
+        }
+        
+        /* Improved table spacing */
+        #pdf-table {
+            border-spacing: 0 !important;
+            margin: 15px 0 !important;
+        }
+        
+        #pdf-table th,
+        #pdf-table td {
+            vertical-align: middle !important;
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -535,12 +573,10 @@
                 <!-- Column Headers -->
                 <div class="dynamic-row" style="background: #e2e8f0; font-weight: 600; color: #4a5568; margin-bottom: 10px;">
                     <div style="display: flex; align-items: center;">Crane Type</div>
-                    <div style="display: flex; align-items: center;">Capacity</div>
-                    <div style="display: flex; align-items: center;">Custom</div>
+                    <div style="display: flex; align-items: center;">Capacity (Tonnes)</div>
                     <div style="display: flex; align-items: center;">Qty</div>
                     <div style="display: flex; align-items: center;">Rate (₹)</div>
                     <div style="display: flex; align-items: center;">Amount (₹)</div>
-                    <div style="display: flex; align-items: center;">Action</div>
                 </div>
                 
     <div id="tableRows"></div>
@@ -556,7 +592,7 @@
         </div>
 
     <!-- PDF Preview Div -->
-    <div id="pdf-preview">
+    <div id="pdf-preview" style="max-width: 800px; margin: 0 auto; padding: 20px; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.1); border-radius: 8px; font-family: Arial, sans-serif; line-height: 1.4; color: #333;">
         <!-- EKTA CRANE Header -->
         <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #D4AF37; padding-bottom: 15px;">
             <!-- Company Logo and Name -->
@@ -614,15 +650,15 @@
                 <div style="text-align: left; flex: 1; padding-right: 15px;">
                     <div style="color: #D4AF37; font-weight: bold; margin-bottom: 5px;">📍 Unit No. I:</div>
                     <div style="color: #333; line-height: 1.4;">
-                        Gala No.2, Golani Naka, Asjad Commercial Complex,<br>
-                        Vasai (E), Dist - Palghar, MH., India - 401 208.
-                    </div>
+                    Gala No.2, Golani Naka, Asjad Commercial Complex,<br>
+                    Vasai (E), Dist - Palghar, MH., India - 401 208.
+                </div>
                 </div>
                 <div style="text-align: right; flex: 1; padding-left: 15px; border-left: 2px solid #D4AF37;">
                     <div style="color: #D4AF37; font-weight: bold; margin-bottom: 5px;">📍 Unit No. II:</div>
                     <div style="color: #333; line-height: 1.4;">
-                        Survey No. 89, H.No.1, Next of Udupi Hotel,<br>
-                        N.H. 8, Vasai (E), Dist - Palghar, MH., 401 208.
+                    Survey No. 89, H.No.1, Next of Udupi Hotel,<br>
+                    N.H. 8, Vasai (E), Dist - Palghar, MH., 401 208.
                     </div>
                 </div>
             </div>
@@ -667,7 +703,7 @@
         <div style="margin-bottom: 25px;">
             <div style="background: #D4AF37; color: #1a1a1a; padding: 8px 15px; border-radius: 5px; margin-bottom: 15px; display: inline-block;">
                 <h4 style="color: #1a1a1a; margin: 0; font-size: 16px; font-weight: bold;">👤 To:</h4>
-            </div>
+                    </div>
             <div style="border: 2px solid #D4AF37; padding: 20px; background: #fafafa; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                 
                 <!-- Row 1: Company Name and GST -->
@@ -681,7 +717,7 @@
                         <strong style="color: #D4AF37; font-size: 12px; margin-bottom: 5px;">GST NUMBER:</strong>
                         <input type="text" id="clientGST" placeholder="Enter GST Number" 
                                style="border: 1px solid #ccc; background: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; width: 100%; text-transform: uppercase;">
-                    </div>
+                </div>
                 </div>
                 
                 <!-- Row 2: Address (Full Width) -->
@@ -689,7 +725,7 @@
                     <strong style="color: #D4AF37; font-size: 12px; margin-bottom: 5px; display: block;">COMPLETE ADDRESS:</strong>
                     <textarea id="clientAddress" placeholder="Enter Complete Address" rows="2" required
                              style="border: 1px solid #ccc; background: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; width: 100%; resize: vertical; font-family: inherit;"></textarea>
-                </div>
+                    </div>
                 
                 <!-- Row 3: Contact and Email -->
                 <div class="client-info-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; align-items: center;">
@@ -702,7 +738,7 @@
                         <strong style="color: #D4AF37; font-size: 12px; margin-bottom: 5px;">EMAIL ADDRESS:</strong>
                         <input type="email" id="clientEmail" placeholder="Enter Email Address" 
                                style="border: 1px solid #ccc; background: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; width: 100%;">
-                    </div>
+                </div>
                 </div>
                 
                 <!-- Row 4: Kind Attention (Centered) -->
@@ -710,30 +746,31 @@
                     <strong style="color: #D4AF37; font-size: 12px; margin-bottom: 5px; display: block;">KIND ATTENTION:</strong>
                     <input type="text" id="clientAttention" placeholder="Enter Contact Person Name" 
                            style="border: 1px solid #ccc; background: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; width: 300px; font-weight: 500; text-align: center;">
-                </div>
             </div>
+        </div>
         </div>
         <div style="margin: 25px 0;">
             <div style="background: #D4AF37; color: #1a1a1a; padding: 8px 15px; border-radius: 5px; margin-bottom: 15px; display: inline-block;">
                 <h4 style="color: #1a1a1a; margin: 0; font-size: 16px; font-weight: bold;">📋 Crane Selection Details</h4>
             </div>
             <table id="pdf-table" style="width: 100%; border-collapse: collapse; margin: 0; border: 2px solid #D4AF37; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <thead>
+            <thead>
                     <tr style="background: #D4AF37; color: #1a1a1a;">
                         <th style="padding: 12px 15px; text-align: left; font-weight: 600; color: #1a1a1a; font-size: 14px; border-right: 2px solid #1a1a1a;">Crane Type</th>
                         <th style="padding: 12px 15px; text-align: center; font-weight: 600; color: #1a1a1a; font-size: 14px; border-right: 2px solid #1a1a1a;">Capacity (Tonnes)</th>
                         <th style="padding: 12px 15px; text-align: center; font-weight: 600; color: #1a1a1a; font-size: 14px; border-right: 2px solid #1a1a1a;">Qty</th>
-                        <th style="padding: 12px 15px; text-align: right; font-weight: 600; color: #1a1a1a; font-size: 14px;">Rate (Rs.)</th>
-                    </tr>
-                </thead>
+                        <th style="padding: 12px 15px; text-align: right; font-weight: 600; color: #1a1a1a; font-size: 14px; border-right: 2px solid #1a1a1a;">Rate (Rs.)</th>
+                        <th style="padding: 12px 15px; text-align: right; font-weight: 600; color: #1a1a1a; font-size: 14px;">Amount (Rs.)</th>
+                </tr>
+            </thead>
                 <tbody style="background: white;"></tbody>
-                <tfoot>
+            <tfoot>
                     <tr style="background: #f8f9fa; border-top: 2px solid #D4AF37;">
-                        <td colspan="3" style="text-align: right; font-weight: bold; padding: 15px; color: #D4AF37; font-size: 16px;">Sub Total:</td>
+                        <td colspan="4" style="text-align: right; font-weight: bold; padding: 15px; color: #D4AF37; font-size: 16px;">Sub Total:</td>
                         <td id="pdf-subtotal" style="font-weight: bold; padding: 15px; text-align: right; color: #D4AF37; font-size: 16px; border-left: 2px solid #D4AF37;"></td>
-                    </tr>
-                </tfoot>
-            </table>
+                </tr>
+            </tfoot>
+        </table>
         </div>
         
         <!-- Crane Images Section -->
@@ -756,50 +793,8 @@
             <li style="margin-bottom: 12px;"><b style="color: #D4AF37;">PAYMENTS:</b> 50% ADVANCE WITH PURCHASE ORDER & 40% BEFORE DISPATCH & 10% BALANCE AFTER TESTING</li>
             <li style="margin-bottom: 12px;"><b style="color: #D4AF37;">DELIVERY PERIOD:</b> WITHIN 3-4 MONTH WORKING DAYS FROM THE DATE OF CONFIRMED PO ALONG WITH ADVANCE</li>
         </ul>
-        <!-- Digital Signature Section -->
-        <div style="margin: 40px 0 20px 0;">
-            <div style="background: #D4AF37; color: #1a1a1a; padding: 10px 20px; border-radius: 5px; margin-bottom: 20px; display: inline-block;">
-                <h4 style="color: #1a1a1a; font-size: 18px; margin: 0; font-weight: bold;">✍️ Digital Signature</h4>
-            </div>
-            
-            <div style="border: 2px solid #D4AF37; padding: 20px; background: #fafafa; border-radius: 8px;">
-                <!-- Signature Canvas -->
-                <div style="margin-bottom: 15px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <strong style="color: #D4AF37; font-size: 14px;">Draw Your Signature:</strong>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <label style="color: #666; font-size: 12px;">Pen Color:</label>
-                            <input type="color" id="signature-color" value="#1a1a1a" style="width: 30px; height: 30px; border: none; border-radius: 50%; cursor: pointer;">
-                            <button type="button" id="clear-signature" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 12px;">Clear</button>
-                        </div>
-                    </div>
-                    <canvas id="signature-canvas" 
-                            style="border: 2px solid #D4AF37; border-radius: 4px; background: white; cursor: crosshair; display: block; width: 100%; max-width: 500px; height: 150px;"
-                            width="500" height="150">
-                    </canvas>
-                    <p style="font-size: 11px; color: #666; margin-top: 5px; font-style: italic;">
-                        💡 Draw your signature above using mouse or touch. The signature will appear in your PDF quotation.
-                    </p>
-                </div>
-
-                <!-- Signature Details -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-                    <div>
-                        <strong style="color: #D4AF37; font-size: 12px; margin-bottom: 5px; display: block;">AUTHORIZED SIGNATORY NAME:</strong>
-                        <input type="text" id="signatory-name" placeholder="Enter signatory name" 
-                               style="border: 1px solid #ccc; background: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; width: 100%; font-weight: 500;">
-                    </div>
-                    <div>
-                        <strong style="color: #D4AF37; font-size: 12px; margin-bottom: 5px; display: block;">DESIGNATION:</strong>
-                        <input type="text" id="signatory-designation" placeholder="e.g., Sales Manager" 
-                               style="border: 1px solid #ccc; background: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; width: 100%; font-weight: 500;">
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div style="text-align: center; margin-top: 30px; padding: 15px; background: #f0f0f0; border-radius: 8px; border-left: 4px solid #D4AF37;">
-            <p style="margin: 0; font-size: 14px; color: #333; font-style: italic; font-weight: 600;">This is a digitally signed quotation with authorized signature.</p>
+            <p style="margin: 0; font-size: 14px; color: #333; font-style: italic; font-weight: 600;">This is computer generated Quotation does not require any signature and stamp.</p>
         </div>
     </div>
 
@@ -961,40 +956,12 @@
             }
             updateCapacityOptions(craneSelect.value);
 
-            // Show input if 'Other' is selected
-            const otherInput = document.createElement('input');
-            otherInput.type = 'number';
-            otherInput.placeholder = 'Enter capacity';
-            otherInput.style.display = capacitySelect.value === 'Others' ? 'block' : 'none';
-            if (capacitySelect.value !== 'Others') otherInput.value = '';
-
-            capacitySelect.addEventListener('change', () => {
-                if (capacitySelect.value === 'Others') {
-                    otherInput.style.display = 'block';
-                } else {
-                    otherInput.style.display = 'none';
-                    otherInput.value = '';
-                }
-            });
-
             craneSelect.addEventListener('change', () => {
                 updateCapacityOptions(craneSelect.value);
-                if (capacitySelect.value === 'Others') otherInput.style.display = 'block';
-                else otherInput.style.display = 'none';
                 updateCraneImages();
             });
 
             capacitySelect.addEventListener('change', () => {
-                if (capacitySelect.value === 'Others') {
-                    otherInput.style.display = 'block';
-                } else {
-                    otherInput.style.display = 'none';
-                    otherInput.value = '';
-                }
-                updateCraneImages();
-            });
-
-            otherInput.addEventListener('input', () => {
                 updateCraneImages();
             });
 
@@ -1010,30 +977,19 @@
             const amtInput = document.createElement('input');
             amtInput.type = 'number'; amtInput.placeholder = 'Amt'; amtInput.value = 0; amtInput.readOnly = true;
 
-            const removeBtn = document.createElement('button');
-            removeBtn.type = 'button'; 
-            removeBtn.textContent = '🗑️ Remove';
-            removeBtn.className = 'btn btn-danger';
-            removeBtn.onclick = () => {
-                div.remove();
-                updateCraneImages();
-            };
-
             div.appendChild(craneSelect);
             div.appendChild(capacitySelect);
-            div.appendChild(otherInput);
             div.appendChild(qtyInput);
             div.appendChild(rateInput);
             div.appendChild(amtInput);
-            div.appendChild(removeBtn);
 
             document.getElementById('tableRows').appendChild(div);
         }
 
         function calculateAmt(row) {
-            const qty = parseFloat(row.children[3].value) || 0;
-            const rate = parseFloat(row.children[4].value) || 0;
-            row.children[5].value = qty * rate;
+            const qty = parseFloat(row.children[2].value) || 0;
+            const rate = parseFloat(row.children[3].value) || 0;
+            row.children[4].value = qty * rate;
         }
 
         function updateCraneImages() {
@@ -1044,8 +1000,7 @@
             const selectedCranes = new Set();
             document.querySelectorAll('#tableRows .dynamic-row').forEach(row => {
                 const crane = row.children[0].value;
-                let capacity = row.children[1].value;
-                if (capacity === 'Others') capacity = row.children[2].value || 'Others';
+                const capacity = row.children[1].value;
                 selectedCranes.add(JSON.stringify({crane, capacity}));
             });
 
@@ -1108,11 +1063,10 @@
 
             document.querySelectorAll('#tableRows .dynamic-row').forEach(row => {
                 const crane = row.children[0].value;
-                let capacity = row.children[1].value;
-                if (capacity === 'Others') capacity = row.children[2].value || 'N/A';
-                const qty = row.children[3].value;
-                const rate = row.children[4].value;
-                const amt = row.children[5].value;
+                const capacity = row.children[1].value;
+                const qty = row.children[2].value;
+                const rate = row.children[3].value;
+                const amt = row.children[4].value;
 
                 subtotal += parseFloat(amt) || 0;
 
@@ -1183,38 +1137,71 @@
         }
 
         function generateMultiPagePDF() {
-            const pdf = new window.jspdf.jsPDF('p', 'pt', 'a4');
+            const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
             
             const element = document.getElementById('pdf-preview');
             
+            // Improved canvas settings for better quality and alignment
             window.html2canvas(element, {
-                scale: 2,
+                scale: 3, // Higher scale for better quality
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: '#ffffff'
+                backgroundColor: '#ffffff',
+                letterRendering: true,
+                logging: false,
+                width: element.scrollWidth,
+                height: element.scrollHeight,
+                x: 0,
+                y: 0
             }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const imgWidth = 210;
-                const pageHeight = 295;
+                const imgData = canvas.toDataURL('image/png', 1.0);
+                
+                // A4 dimensions in mm
+                const pdfWidth = 210;
+                const pdfHeight = 297;
+                const margin = 10; // 10mm margins
+                const contentWidth = pdfWidth - (margin * 2);
+                
+                // Calculate the height of the image in PDF
+                const imgWidth = contentWidth;
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                const pageContentHeight = pdfHeight - (margin * 2);
+                
                 let heightLeft = imgHeight;
                 let position = 0;
+                let pageNumber = 1;
 
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
+                // Add first page with proper margins
+                pdf.addImage(imgData, 'PNG', margin, margin + position, imgWidth, imgHeight);
+                heightLeft -= pageContentHeight;
 
-                while (heightLeft >= 0) {
+                // Add additional pages if needed
+                while (heightLeft > 0) {
                     position = heightLeft - imgHeight;
                     pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
+                    pageNumber++;
+                    pdf.addImage(imgData, 'PNG', margin, margin + position, imgWidth, imgHeight);
+                    heightLeft -= pageContentHeight;
                 }
 
-                pdf.save('ekta-crane-quotation.pdf');
+                // Add page numbers
+                for (let i = 1; i <= pageNumber; i++) {
+                    pdf.setPage(i);
+            pdf.setFontSize(10);
+                    pdf.setTextColor(128, 128, 128);
+                    pdf.text(`Page ${i} of ${pageNumber}`, pdfWidth - margin - 20, pdfHeight - 5);
+                }
+
+                // Generate filename with current date
+                const now = new Date();
+                const dateStr = now.toISOString().split('T')[0];
+                const filename = `Ekta-Crane-Quotation-${dateStr}.pdf`;
+                
+                pdf.save(filename);
                 
                 setTimeout(() => {
                     hidePDFLoadingMessage();
-                }, 500);
+                }, 1000);
             });
         }
 

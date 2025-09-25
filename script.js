@@ -32,7 +32,6 @@ class LuxuryEnhancement {
         this.enhanceFormExperience();
         this.addLoadingStates();
         this.initSmoothScrolling();
-        this.initDigitalSignature();
         
         // Add body class to indicate luxury mode is active
         document.body.classList.add('luxury-enhanced');
@@ -509,9 +508,7 @@ class LuxuryEnhancement {
             'clientAddress',
             'clientContact',
             'clientEmail',
-            'clientAttention',
-            'signatory-name',
-            'signatory-designation'
+            'clientAttention'
         ];
         
         clientInputs.forEach(inputId => {
@@ -704,20 +701,6 @@ class LuxuryEnhancement {
                     if (value && value.length < 2) {
                         isValid = false;
                         message = 'Contact person name must be at least 2 characters';
-                    }
-                    break;
-                    
-                case 'signatory-name':
-                    if (value && value.length < 2) {
-                        isValid = false;
-                        message = 'Signatory name must be at least 2 characters';
-                    }
-                    break;
-                    
-                case 'signatory-designation':
-                    if (value && value.length < 2) {
-                        isValid = false;
-                        message = 'Designation must be at least 2 characters';
                     }
                     break;
             }
@@ -1599,15 +1582,13 @@ class LuxuryEnhancement {
                         <td style="border-right: 1px solid #D4AF37; padding: 8px;">${crane}</td>
                         <td style="border-right: 1px solid #D4AF37; padding: 8px; text-align: center;">${capacity}</td>
                         <td style="border-right: 1px solid #D4AF37; padding: 8px; text-align: center;">${qty}</td>
-                        <td style="padding: 8px; text-align: right; color: #2e7d32; font-weight: 600;">₹${rate.toLocaleString("en-IN")}</td>
+                        <td style="border-right: 1px solid #D4AF37; padding: 8px; text-align: right; color: #2e7d32; font-weight: 600;">₹${rate.toLocaleString("en-IN")}</td>
+                        <td style="padding: 8px; text-align: right; color: #d32f2f; font-weight: 600;">₹${amount.toLocaleString("en-IN")}</td>
                     `;
                     pdfTableBody.appendChild(tr);
                 });
 
                 pdfSubtotal.textContent = `₹${subtotal.toLocaleString("en-IN")}`;
-
-                // Add digital signature to PDF preview
-                this.addSignatureToPDFPreview();
 
                 // Call the original function if it exists
                 if (originalGenerateMultiPagePDF) {
@@ -1620,85 +1601,6 @@ class LuxuryEnhancement {
         }
     }
 
-    /**
-     * Add digital signature to PDF preview
-     */
-    addSignatureToPDFPreview() {
-        const signatureDetails = this.getSignatureDetails();
-        const pdfPreview = document.getElementById('pdf-preview');
-        
-        if (!pdfPreview) return;
-        
-        // Remove existing signature section
-        const existingSignature = pdfPreview.querySelector('.pdf-signature-section');
-        if (existingSignature) {
-            existingSignature.remove();
-        }
-        
-        // Create signature section for PDF
-        if (signatureDetails.signatureDataURL || signatureDetails.name) {
-            const signatureSection = document.createElement('div');
-            signatureSection.className = 'pdf-signature-section';
-            signatureSection.style.cssText = `
-                margin-top: 30px;
-                padding: 20px;
-                border-top: 2px solid #D4AF37;
-                background: #fafafa;
-                page-break-inside: avoid;
-            `;
-            
-            let signatureHTML = `
-                <h4 style="color: #D4AF37; margin: 0 0 15px 0; font-size: 16px; font-weight: bold;">✍️ Authorized Signature</h4>
-                <div style="display: flex; justify-content: space-between; align-items: end;">
-                    <div style="flex: 1;">
-            `;
-            
-            // Add signature image if available
-            if (signatureDetails.signatureDataURL) {
-                signatureHTML += `
-                    <div style="margin-bottom: 10px;">
-                        <img src="${signatureDetails.signatureDataURL}" 
-                             style="max-width: 200px; max-height: 60px; border: 1px solid #ddd; background: white; border-radius: 4px;"
-                             alt="Digital Signature">
-                    </div>
-                `;
-            }
-            
-            // Add signatory details
-            if (signatureDetails.name) {
-                signatureHTML += `
-                    <div style="border-top: 1px solid #D4AF37; padding-top: 5px; max-width: 200px;">
-                        <div style="font-weight: bold; color: #333; font-size: 14px;">${signatureDetails.name}</div>
-                `;
-                
-                if (signatureDetails.designation) {
-                    signatureHTML += `<div style="color: #666; font-size: 12px; margin-top: 2px;">${signatureDetails.designation}</div>`;
-                }
-                
-                signatureHTML += `</div>`;
-            }
-            
-            signatureHTML += `
-                    </div>
-                    <div style="text-align: right; color: #666; font-size: 11px;">
-                        <div><strong>Date:</strong> ${new Date().toLocaleDateString()}</div>
-                        <div style="margin-top: 2px;"><strong>Time:</strong> ${new Date().toLocaleTimeString()}</div>
-                        <div style="margin-top: 5px; font-size: 10px; font-style: italic;">Digitally Signed</div>
-                    </div>
-                </div>
-            `;
-            
-            signatureSection.innerHTML = signatureHTML;
-            
-            // Insert before the disclaimer
-            const disclaimer = pdfPreview.querySelector('div[style*="This is a digitally signed"]');
-            if (disclaimer) {
-                pdfPreview.insertBefore(signatureSection, disclaimer);
-            } else {
-                pdfPreview.appendChild(signatureSection);
-            }
-        }
-    }
 
     /**
      * Simple PDF generation fallback
@@ -1895,148 +1797,6 @@ class LuxuryEnhancement {
         });
     }
 
-    /**
-     * Initialize digital signature functionality
-     */
-    initDigitalSignature() {
-        const canvas = document.getElementById('signature-canvas');
-        const clearBtn = document.getElementById('clear-signature');
-        const colorPicker = document.getElementById('signature-color');
-        
-        if (!canvas) return;
-        
-        const ctx = canvas.getContext('2d');
-        let isDrawing = false;
-        let lastX = 0;
-        let lastY = 0;
-
-        // Set up canvas properties
-        ctx.lineJoin = 'round';
-        ctx.lineCap = 'round';
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = '#1a1a1a';
-
-        // Mouse events
-        canvas.addEventListener('mousedown', (e) => {
-            isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
-            lastX = e.clientX - rect.left;
-            lastY = e.clientY - rect.top;
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (!isDrawing) return;
-            
-            const rect = canvas.getBoundingClientRect();
-            const currentX = e.clientX - rect.left;
-            const currentY = e.clientY - rect.top;
-
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(currentX, currentY);
-            ctx.stroke();
-
-            lastX = currentX;
-            lastY = currentY;
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            isDrawing = false;
-        });
-
-        canvas.addEventListener('mouseout', () => {
-            isDrawing = false;
-        });
-
-        // Touch events for mobile
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
-            const touch = e.touches[0];
-            lastX = touch.clientX - rect.left;
-            lastY = touch.clientY - rect.top;
-        });
-
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            if (!isDrawing) return;
-            
-            const rect = canvas.getBoundingClientRect();
-            const touch = e.touches[0];
-            const currentX = touch.clientX - rect.left;
-            const currentY = touch.clientY - rect.top;
-
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(currentX, currentY);
-            ctx.stroke();
-
-            lastX = currentX;
-            lastY = currentY;
-        });
-
-        canvas.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            isDrawing = false;
-        });
-
-        // Clear button
-        if (clearBtn) {
-            clearBtn.addEventListener('click', () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                this.showNotification('✅ Signature cleared', 'info', 2000);
-            });
-        }
-
-        // Color picker
-        if (colorPicker) {
-            colorPicker.addEventListener('change', (e) => {
-                ctx.strokeStyle = e.target.value;
-            });
-        }
-
-        // Store reference to canvas for PDF generation
-        this.signatureCanvas = canvas;
-    }
-
-    /**
-     * Get signature data URL for PDF
-     */
-    getSignatureDataURL() {
-        if (!this.signatureCanvas) return null;
-        
-        // Check if canvas has content
-        const ctx = this.signatureCanvas.getContext('2d');
-        const imageData = ctx.getImageData(0, 0, this.signatureCanvas.width, this.signatureCanvas.height);
-        const data = imageData.data;
-        
-        // Check if canvas is blank
-        let isBlank = true;
-        for (let i = 0; i < data.length; i += 4) {
-            if (data[i + 3] !== 0) { // Check alpha channel
-                isBlank = false;
-                break;
-            }
-        }
-        
-        return isBlank ? null : this.signatureCanvas.toDataURL('image/png');
-    }
-
-    /**
-     * Get signature details
-     */
-    getSignatureDetails() {
-        const signatory = document.getElementById('signatory-name');
-        const designation = document.getElementById('signatory-designation');
-        
-        return {
-            name: signatory ? signatory.value.trim() : '',
-            designation: designation ? designation.value.trim() : '',
-            signatureDataURL: this.getSignatureDataURL(),
-            timestamp: new Date().toLocaleString()
-        };
-    }
 }
 
 // Initialize luxury enhancement when DOM is ready
