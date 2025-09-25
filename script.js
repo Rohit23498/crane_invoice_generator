@@ -491,21 +491,145 @@ class LuxuryEnhancement {
      * Enhance form experience
      */
     enhanceFormExperience() {
-        // Add form validation feedback
-        const inputs = document.querySelectorAll('input[required], textarea[required]');
+        // Add form validation feedback and input formatting
+        this.setupFormValidation();
+        this.addInputFormatting();
+        this.enhanceExistingFunctions();
+    }
+
+    /**
+     * Setup form validation
+     */
+    setupFormValidation() {
+        const inputs = document.querySelectorAll('input, textarea');
         
         inputs.forEach(input => {
+            // Add validation on blur
             input.addEventListener('blur', () => {
                 this.validateInput(input);
             });
 
+            // Clear validation error on input
             input.addEventListener('input', () => {
                 this.clearValidationError(input);
             });
-        });
 
-        // Enhance the existing form functions
-        this.enhanceExistingFunctions();
+            // Add real-time formatting for specific fields
+            if (input.id === 'clientGSTInput') {
+                input.addEventListener('input', (e) => {
+                    this.formatGSTInput(e.target);
+                });
+            } else if (input.id === 'clientContactInput') {
+                input.addEventListener('input', (e) => {
+                    this.formatContactInput(e.target);
+                });
+            }
+        });
+    }
+
+    /**
+     * Add input formatting and placeholder guidance
+     */
+    addInputFormatting() {
+        // Enhance GST input
+        const gstInput = document.getElementById('clientGSTInput');
+        if (gstInput) {
+            gstInput.placeholder = 'e.g., 27AAICE7407Q1Z0 (15 characters)';
+            gstInput.maxLength = 15;
+            gstInput.style.textTransform = 'uppercase';
+            gstInput.setAttribute('title', 'GST format: 2-digit state code + 10-char PAN + 1 entity code + Z + 1 check digit');
+        }
+
+        // Enhance Email input
+        const emailInput = document.getElementById('clientEmailInput');
+        if (emailInput) {
+            emailInput.placeholder = 'e.g., company@example.com';
+            emailInput.setAttribute('title', 'Enter a valid email address');
+        }
+
+        // Enhance Contact input
+        const contactInput = document.getElementById('clientContactInput');
+        if (contactInput) {
+            contactInput.placeholder = 'e.g., 9876543210 or 022-12345678';
+            contactInput.setAttribute('title', 'Enter 10-digit mobile number or landline with STD code');
+        }
+    }
+
+    /**
+     * Format GST input in real-time
+     */
+    formatGSTInput(input) {
+        let value = input.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        
+        // Limit to 15 characters
+        if (value.length > 15) {
+            value = value.substring(0, 15);
+        }
+        
+        input.value = value;
+        
+        // Show format hint
+        this.showFormatHint(input, value.length === 15 ? 'GST format complete' : `${15 - value.length} characters remaining`);
+    }
+
+    /**
+     * Format contact input in real-time
+     */
+    formatContactInput(input) {
+        let value = input.value.replace(/[^0-9]/g, '');
+        
+        // Limit mobile numbers to 10 digits, landlines can be longer
+        if (value.length <= 10) {
+            input.value = value;
+        } else if (value.length <= 12) {
+            // Allow for STD codes
+            input.value = value;
+        } else {
+            // Trim to reasonable length
+            input.value = value.substring(0, 12);
+        }
+        
+        // Show format hint
+        const length = input.value.length;
+        if (length === 10) {
+            this.showFormatHint(input, 'Mobile number format complete');
+        } else if (length > 10) {
+            this.showFormatHint(input, 'Landline with STD code');
+        } else {
+            this.showFormatHint(input, `${10 - length} digits remaining for mobile`);
+        }
+    }
+
+    /**
+     * Show format hint
+     */
+    showFormatHint(input, message) {
+        let hint = input.parentElement.querySelector('.format-hint');
+        if (!hint) {
+            hint = document.createElement('div');
+            hint.className = 'format-hint';
+            hint.style.cssText = `
+                font-size: 0.75rem;
+                color: var(--color-accent-gold);
+                margin-top: 4px;
+                opacity: 0.8;
+                font-weight: 500;
+            `;
+            input.parentElement.appendChild(hint);
+        }
+        
+        hint.textContent = message;
+        
+        // Auto-hide hint after 3 seconds
+        clearTimeout(hint.hideTimeout);
+        hint.hideTimeout = setTimeout(() => {
+            hint.style.opacity = '0';
+            setTimeout(() => {
+                if (hint.parentNode) {
+                    hint.remove();
+                }
+            }, 300);
+        }, 3000);
     }
 
     /**
@@ -516,14 +640,27 @@ class LuxuryEnhancement {
         let isValid = true;
         let message = '';
 
+        // Check if field is required and empty
         if (input.hasAttribute('required') && !value) {
             isValid = false;
             message = 'This field is required';
-        } else if (input.type === 'email' && value) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(value)) {
-                isValid = false;
-                message = 'Please enter a valid email address';
+        } else if (value) {
+            // Validate based on input type and ID
+            if (input.type === 'email' || input.id === 'clientEmailInput') {
+                if (!this.validateEmail(value)) {
+                    isValid = false;
+                    message = 'Please enter a valid email address (e.g., user@domain.com)';
+                }
+            } else if (input.id === 'clientGSTInput') {
+                if (!this.validateGSTNumber(value)) {
+                    isValid = false;
+                    message = 'Please enter a valid GST number (15 characters: 27AAICE7407Q1Z0)';
+                }
+            } else if (input.id === 'clientContactInput') {
+                if (!this.validateContactNumber(value)) {
+                    isValid = false;
+                    message = 'Please enter a valid contact number (10 digits: 9876543210)';
+                }
             }
         }
 
@@ -534,6 +671,245 @@ class LuxuryEnhancement {
         }
 
         return isValid;
+    }
+
+    /**
+     * Validate email address
+     */
+    validateEmail(email) {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(email);
+    }
+
+    /**
+     * Validate GST number (Indian format)
+     */
+    validateGSTNumber(gst) {
+        // Indian GST format: 2 digits (state code) + 10 characters (PAN) + 1 digit (entity code) + 1 character (Z) + 1 digit (check digit)
+        // Example: 27AAICE7407Q1Z0
+        const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}[Z]{1}[0-9A-Z]{1}$/;
+        return gstRegex.test(gst.toUpperCase());
+    }
+
+    /**
+     * Validate Indian contact number
+     */
+    validateContactNumber(contact) {
+        // Remove any spaces, dashes, or brackets
+        const cleanedContact = contact.replace(/[\s\-\(\)\+]/g, '');
+        
+        // Indian mobile number: 10 digits starting with 6-9
+        // Also accept landline with STD codes
+        const mobileRegex = /^[6-9]\d{9}$/;
+        const landlineRegex = /^[0-9]{2,4}[0-9]{6,8}$/;
+        const internationalRegex = /^91[6-9]\d{9}$/;
+        
+        return mobileRegex.test(cleanedContact) || 
+               landlineRegex.test(cleanedContact) || 
+               internationalRegex.test(cleanedContact);
+    }
+
+    /**
+     * Validate all fields before PDF generation
+     */
+    validateAllFields() {
+        const requiredFields = [
+            { id: 'clientCompanyInput', name: 'Company Name', required: true },
+            { id: 'clientGSTInput', name: 'GST Number', required: false },
+            { id: 'clientContactInput', name: 'Contact Number', required: true },
+            { id: 'clientEmailInput', name: 'Email Address', required: false },
+            { id: 'clientAttentionInput', name: 'Contact Person', required: false },
+            { id: 'clientAddressInput', name: 'Address', required: true }
+        ];
+
+        let validationErrors = [];
+        let hasErrors = false;
+
+        // Validate each field
+        requiredFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            if (input) {
+                const value = input.value.trim();
+                
+                // Check required fields
+                if (field.required && !value) {
+                    validationErrors.push(`${field.name} is required`);
+                    hasErrors = true;
+                    this.showValidationError(input, `${field.name} is required`);
+                } else if (value) {
+                    // Validate format if value is provided
+                    if (!this.validateInput(input)) {
+                        hasErrors = true;
+                        // Error message already shown by validateInput
+                    }
+                }
+            }
+        });
+
+        // Check if at least one crane is selected
+        const craneRows = document.querySelectorAll('#tableRows .dynamic-row');
+        if (craneRows.length === 0) {
+            validationErrors.push('At least one crane must be selected');
+            hasErrors = true;
+        }
+
+        // Show validation summary if there are errors
+        if (hasErrors) {
+            this.showValidationSummary(validationErrors);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Show validation summary
+     */
+    showValidationSummary(errors) {
+        this.showNotification(
+            `Please fix the following errors:\n${errors.map(error => `• ${error}`).join('\n')}`, 
+            'error', 
+            8000
+        );
+
+        // Scroll to first error
+        const firstErrorField = document.querySelector('.validation-error');
+        if (firstErrorField) {
+            firstErrorField.closest('.form-group, .section').scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    }
+
+    /**
+     * Show notification with enhanced styling
+     */
+    showNotification(message, type = 'info', duration = 5000) {
+        // Remove existing notification
+        const existingNotification = document.querySelector('.luxury-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.className = `luxury-notification notification-${type}`;
+        
+        // Style based on type
+        const colors = {
+            success: { bg: '#4CAF50', icon: '✅' },
+            error: { bg: '#f44336', icon: '⚠️' },
+            warning: { bg: '#ff9800', icon: '⚠️' },
+            info: { bg: '#2196F3', icon: 'ℹ️' }
+        };
+        
+        const config = colors[type] || colors.info;
+        
+        notification.innerHTML = `
+            <div class="notification-content">
+                <div class="notification-icon">${config.icon}</div>
+                <div class="notification-message">${message}</div>
+                <button class="notification-close" aria-label="Close notification">×</button>
+            </div>
+        `;
+
+        // Style the notification
+        notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            max-width: 400px;
+            background: ${config.bg};
+            color: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-luxury);
+            z-index: 10001;
+            transform: translateX(420px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: var(--font-sans);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        `;
+
+        // Style notification content
+        const content = notification.querySelector('.notification-content');
+        content.style.cssText = `
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px 20px;
+        `;
+
+        // Style icon
+        const icon = notification.querySelector('.notification-icon');
+        icon.style.cssText = `
+            font-size: 20px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        `;
+
+        // Style message
+        const messageEl = notification.querySelector('.notification-message');
+        messageEl.style.cssText = `
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.5;
+            font-weight: 500;
+            white-space: pre-line;
+        `;
+
+        // Style close button
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.style.cssText = `
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s ease;
+            flex-shrink: 0;
+        `;
+
+        closeBtn.addEventListener('mouseenter', () => {
+            closeBtn.style.background = 'rgba(255, 255, 255, 0.2)';
+        });
+
+        closeBtn.addEventListener('mouseleave', () => {
+            closeBtn.style.background = 'none';
+        });
+
+        document.body.appendChild(notification);
+
+        // Animate in
+        requestAnimationFrame(() => {
+            notification.style.transform = 'translateX(0)';
+        });
+
+        // Close functionality
+        const closeNotification = () => {
+            notification.style.transform = 'translateX(420px)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 400);
+        };
+
+        closeBtn.addEventListener('click', closeNotification);
+
+        // Auto close
+        setTimeout(closeNotification, duration);
+
+        // Add accessibility
+        notification.setAttribute('role', 'alert');
+        notification.setAttribute('aria-live', 'assertive');
     }
 
     /**
@@ -616,45 +992,444 @@ class LuxuryEnhancement {
             const originalGeneratePDF = window.generatePDF;
             
             window.generatePDF = () => {
+                // Validate all required fields before generating PDF
+                if (!this.validateAllFields()) {
+                    return; // Don't generate PDF if validation fails
+                }
+                
                 // Add premium loading experience
                 this.showPremiumLoader();
                 
-                // Call original function
-                originalGeneratePDF();
+                // Call original function and add success notification
+                const result = originalGeneratePDF();
+                
+                // Show success notification after a delay
+                setTimeout(() => {
+                    luxuryEnhancement.showNotification(
+                        '🎉 PDF Generated Successfully!\nYour professional quotation has been created and downloaded.',
+                        'success',
+                        4000
+                    );
+                }, 2000);
             };
         }
 
-        // Store original addRow function
+        // Override addRow function for simplified crane selection
         if (typeof window.addRow === 'function') {
-            const originalAddRow = window.addRow;
-            
-            window.addRow = (...args) => {
-                const result = originalAddRow.apply(this, args);
-                
-                // Enhance newly added row
-                setTimeout(() => {
-                    const rows = document.querySelectorAll('.dynamic-row');
-                    const newRow = rows[rows.length - 1];
-                    if (newRow) {
-                        newRow.style.opacity = '0';
-                        newRow.style.transform = 'translateY(20px)';
-                        
-                        setTimeout(() => {
-                            newRow.style.transition = 'all 0.5s ease';
-                            newRow.style.opacity = '1';
-                            newRow.style.transform = 'translateY(0)';
-                        }, 10);
-                        
-                        // Enhance inputs in new row
-                        const inputs = newRow.querySelectorAll('input, select');
-                        inputs.forEach(input => {
-                            this.addFloatingLabel(input);
-                        });
-                    }
-                }, 10);
-                
-                return result;
+            window.addRow = (crane = '', capacity = '', qty = 0, rate = 0) => {
+                this.createSimplifiedCraneRow(crane, capacity, qty, rate);
             };
+        }
+
+        // Override updateCraneImages function
+        if (typeof window.updateCraneImages === 'function') {
+            window.updateCraneImages = () => {
+                this.updateCraneImages();
+            };
+        }
+
+        // Update column headers for simplified layout
+        this.updateColumnHeaders();
+        
+        // Enhance PDF generation for simplified structure
+        this.enhanceGeneratePDF();
+        
+        // Clear existing rows and add one simplified row
+        this.initializeSimplifiedRows();
+    }
+
+    /**
+     * Create simplified crane row (Crane Type, Capacity, Qty, Rate only)
+     */
+    createSimplifiedCraneRow(crane = '', capacity = '', qty = 0, rate = 0) {
+        const div = document.createElement('div');
+        div.classList.add('dynamic-row');
+
+        // Get crane data for dropdowns
+        const cranesData = {
+            "Single Girder EOT Crane": ["0.5 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "15 Tonne", "20 Tonne", "Others"],
+            "Double Girder EOT Crane": ["2 Tonne", "5 Tonne", "10 Tonne", "50 Tonne", "100 Tonne", "150 Tonne", "250 Tonne", "Others"],
+            "Underslung EOT Crane": ["0.5 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "Others"],
+            "Single Girder Gantry Crane": ["1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "15 Tonne", "20 Tonne", "Others"],
+            "Double Girder Gantry Crane": ["5 Tonne", "10 Tonne", "50 Tonne", "100 Tonne", "200 Tonne", "500 Tonne", "Others"],
+            "Semi Gantry Crane": ["2 Tonne", "5 Tonne", "10 Tonne", "15 Tonne", "20 Tonne", "50 Tonne", "80 Tonne", "Others"],
+            "Wall Mounted Jib Crane": ["0.5 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "16 Tonne", "Others"],
+            "Pillar Mounted Jib Crane": ["0.5 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "16 Tonne", "Others"],
+            "Container Crane": ["20 Tonne", "45 Tonne", "Others"],
+            "Small Gantry Crane": ["0.25 Tonne", "0.50 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "Others"],
+            "Wire Rope Electric Hoist": ["0.5 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "20 Tonne", "36 Tonne", "Others"],
+            "Electric Chain Hoist": ["0.5 Tonne", "1 Tonne", "2 Tonne", "5 Tonne", "10 Tonne", "15 Tonne", "25 Tonne", "35 Tonne", "Others"]
+        };
+
+        // 1. Crane Type Dropdown
+        const craneSelect = document.createElement('select');
+        craneSelect.style.cssText = `
+            padding: 12px;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            background: rgba(42, 42, 42, 0.8);
+            color: var(--color-text-primary);
+            font-family: var(--font-sans);
+            transition: all 0.3s ease;
+        `;
+        
+        Object.keys(cranesData).forEach(craneType => {
+            const option = document.createElement('option');
+            option.value = craneType;
+            option.textContent = craneType;
+            if (craneType === crane) option.selected = true;
+            craneSelect.appendChild(option);
+        });
+
+        // 2. Capacity Dropdown
+        const capacitySelect = document.createElement('select');
+        capacitySelect.style.cssText = craneSelect.style.cssText;
+        
+        const updateCapacityOptions = (selectedCrane) => {
+            capacitySelect.innerHTML = '';
+            cranesData[selectedCrane].forEach(cap => {
+                const opt = document.createElement('option');
+                opt.value = cap;
+                opt.textContent = cap;
+                if (cap === capacity) opt.selected = true;
+                capacitySelect.appendChild(opt);
+            });
+        };
+        updateCapacityOptions(craneSelect.value);
+
+        // Update capacity when crane changes
+        craneSelect.addEventListener('change', () => {
+            updateCapacityOptions(craneSelect.value);
+            this.updateCraneImages();
+        });
+
+        capacitySelect.addEventListener('change', () => {
+            this.updateCraneImages();
+        });
+
+        // 3. Quantity Input
+        const qtyInput = document.createElement('input');
+        qtyInput.type = 'number';
+        qtyInput.value = qty;
+        qtyInput.placeholder = 'Qty';
+        qtyInput.min = 0;
+        qtyInput.style.cssText = `
+            padding: 12px;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            background: rgba(42, 42, 42, 0.8);
+            color: var(--color-text-primary);
+            font-family: var(--font-sans);
+            text-align: center;
+            transition: all 0.3s ease;
+        `;
+
+        // 4. Rate Input
+        const rateInput = document.createElement('input');
+        rateInput.type = 'number';
+        rateInput.value = rate;
+        rateInput.placeholder = 'Rate (₹)';
+        rateInput.min = 0;
+        rateInput.style.cssText = qtyInput.style.cssText;
+        rateInput.style.textAlign = 'right';
+
+        // Add luxury styling on focus
+        [craneSelect, capacitySelect, qtyInput, rateInput].forEach(element => {
+            element.addEventListener('focus', () => {
+                element.style.borderColor = 'var(--color-accent-gold)';
+                element.style.boxShadow = '0 0 0 3px rgba(212, 175, 55, 0.2)';
+                element.style.transform = 'translateY(-2px)';
+            });
+
+            element.addEventListener('blur', () => {
+                element.style.borderColor = 'var(--color-border)';
+                element.style.boxShadow = 'none';
+                element.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Add elements to row
+        div.appendChild(craneSelect);
+        div.appendChild(capacitySelect);
+        div.appendChild(qtyInput);
+        div.appendChild(rateInput);
+
+        // Add double-click to remove functionality
+        div.addEventListener('dblclick', () => {
+            if (confirm('Remove this crane from the selection?')) {
+                div.style.transform = 'translateX(-100%)';
+                div.style.opacity = '0';
+                setTimeout(() => {
+                    div.remove();
+                    this.updateCraneImages();
+                }, 300);
+            }
+        });
+
+        // Add visual indicator for remove functionality
+        div.setAttribute('title', 'Double-click to remove this crane');
+        div.style.position = 'relative';
+        
+        // Add a subtle remove indicator
+        const removeIndicator = document.createElement('div');
+        removeIndicator.innerHTML = '×';
+        removeIndicator.style.cssText = `
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: #f44336;
+            color: white;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        `;
+        
+        removeIndicator.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm('Remove this crane from the selection?')) {
+                div.style.transform = 'translateX(-100%)';
+                div.style.opacity = '0';
+                setTimeout(() => {
+                    div.remove();
+                    this.updateCraneImages();
+                }, 300);
+            }
+        });
+
+        div.addEventListener('mouseenter', () => {
+            removeIndicator.style.display = 'flex';
+        });
+
+        div.addEventListener('mouseleave', () => {
+            removeIndicator.style.display = 'none';
+        });
+
+        div.appendChild(removeIndicator);
+
+        // Add to DOM with animation
+        const container = document.getElementById('tableRows');
+        container.appendChild(div);
+
+        // Animate in
+        div.style.opacity = '0';
+        div.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            div.style.transition = 'all 0.5s ease';
+            div.style.opacity = '1';
+            div.style.transform = 'translateY(0)';
+        }, 10);
+
+        // Update crane images
+        setTimeout(() => {
+            if (typeof window.updateCraneImages === 'function') {
+                window.updateCraneImages();
+            }
+        }, 100);
+    }
+
+    /**
+     * Update crane images (simplified version)
+     */
+    updateCraneImages() {
+        const container = document.getElementById('crane-images-container');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        // Get unique crane selections
+        const selectedCranes = new Set();
+        document.querySelectorAll('#tableRows .dynamic-row').forEach(row => {
+            const crane = row.children[0].value;
+            const capacity = row.children[1].value;
+            selectedCranes.add(JSON.stringify({crane, capacity}));
+        });
+
+        // Crane images mapping (simplified)
+        const craneImages = {
+            "Single Girder EOT Crane": {
+                "0.5 Tonne": "https://via.placeholder.com/200x150/4CAF50/white?text=Single+Girder+EOT+0.5T",
+                "1 Tonne": "https://via.placeholder.com/200x150/4CAF50/white?text=Single+Girder+EOT+1T",
+                "2 Tonne": "https://via.placeholder.com/200x150/4CAF50/white?text=Single+Girder+EOT+2T",
+                "Others": "https://via.placeholder.com/200x150/4CAF50/white?text=Single+Girder+EOT+Custom"
+            },
+            "Double Girder EOT Crane": {
+                "2 Tonne": "https://via.placeholder.com/200x150/2196F3/white?text=Double+Girder+EOT+2T",
+                "5 Tonne": "https://via.placeholder.com/200x150/2196F3/white?text=Double+Girder+EOT+5T",
+                "Others": "https://via.placeholder.com/200x150/2196F3/white?text=Double+Girder+EOT+Custom"
+            }
+            // Add more as needed
+        };
+
+        selectedCranes.forEach(craneData => {
+            const {crane, capacity} = JSON.parse(craneData);
+            const imageUrl = craneImages[crane] && craneImages[crane][capacity] 
+                ? craneImages[crane][capacity] 
+                : 'https://via.placeholder.com/200x150/CCCCCC/white?text=Crane+Image';
+            
+            const imageDiv = document.createElement('div');
+            imageDiv.className = 'crane-image-item';
+            
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = `${crane} - ${capacity}`;
+            
+            const label = document.createElement('div');
+            label.className = 'label';
+            label.textContent = `${crane} - ${capacity}`;
+            
+            imageDiv.appendChild(img);
+            imageDiv.appendChild(label);
+            container.appendChild(imageDiv);
+        });
+    }
+
+    /**
+     * Update column headers for simplified layout
+     */
+    updateColumnHeaders() {
+        // Find the column header row and update it
+        const headerRow = document.querySelector('.dynamic-row[style*="background: #e2e8f0"]');
+        if (headerRow) {
+            headerRow.innerHTML = `
+                <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Crane Type</div>
+                <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Capacity</div>
+                <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Qty</div>
+                <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Rate (₹)</div>
+            `;
+            
+            // Update the grid layout for header
+            headerRow.style.gridTemplateColumns = '2.5fr 1.5fr 1fr 1.2fr';
+            headerRow.style.background = 'linear-gradient(135deg, var(--color-accent-gold), #c5a028)';
+            headerRow.style.color = 'var(--color-primary-dark)';
+            headerRow.querySelectorAll('div').forEach(div => {
+                div.style.color = 'var(--color-primary-dark)';
+                div.style.fontWeight = '600';
+                div.style.fontFamily = 'var(--font-sans)';
+            });
+        }
+    }
+
+    /**
+     * Override the original generatePDF function to work with simplified data
+     */
+    enhanceGeneratePDF() {
+        // Store reference to original functions if they exist
+        if (typeof window.generatePDF === 'function') {
+            const originalGenerateMultiPagePDF = window.generateMultiPagePDF;
+            
+            // Override the PDF generation to work with simplified structure
+            window.generateMultiPagePDF = () => {
+                // Get table body and populate with simplified data
+                const pdfTableBody = document.querySelector('#pdf-table tbody');
+                const pdfSubtotal = document.getElementById('pdf-subtotal');
+                
+                pdfTableBody.innerHTML = '';
+                let subtotal = 0;
+
+                document.querySelectorAll('#tableRows .dynamic-row').forEach(row => {
+                    // Skip header rows
+                    if (row.style.background.includes('#e2e8f0') || row.style.background.includes('accent-gold')) {
+                        return;
+                    }
+                    
+                    const crane = row.children[0].value;
+                    const capacity = row.children[1].value;
+                    const qty = parseFloat(row.children[2].value) || 0;
+                    const rate = parseFloat(row.children[3].value) || 0;
+                    const amount = qty * rate;
+
+                    subtotal += amount;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${crane}</td>
+                        <td>${capacity}</td>
+                        <td>${qty}</td>
+                        <td>₹${rate.toLocaleString("en-IN")}</td>
+                        <td>₹${amount.toLocaleString("en-IN")}</td>
+                    `;
+                    pdfTableBody.appendChild(tr);
+                });
+
+                pdfSubtotal.textContent = `₹${subtotal.toLocaleString("en-IN")}`;
+
+                // Call the original function if it exists
+                if (originalGenerateMultiPagePDF) {
+                    originalGenerateMultiPagePDF();
+                } else {
+                    // Fallback PDF generation
+                    this.generateSimplePDF();
+                }
+            };
+        }
+    }
+
+    /**
+     * Simple PDF generation fallback
+     */
+    generateSimplePDF() {
+        const element = document.getElementById('pdf-preview');
+        
+        if (typeof window.html2canvas === 'function' && typeof window.jspdf !== 'undefined') {
+            window.html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new window.jspdf.jsPDF('p', 'pt', 'a4');
+                const imgWidth = 210;
+                const pageHeight = 295;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                pdf.save('ekta-crane-quotation.pdf');
+            });
+        }
+    }
+
+    /**
+     * Initialize simplified rows interface
+     */
+    initializeSimplifiedRows() {
+        // Clear existing rows except header
+        const tableRows = document.getElementById('tableRows');
+        if (tableRows) {
+            // Remove all existing dynamic rows
+            const existingRows = tableRows.querySelectorAll('.dynamic-row');
+            existingRows.forEach(row => row.remove());
+            
+            // Add one initial simplified row
+            this.createSimplifiedCraneRow();
+            
+            // Show helpful message
+            setTimeout(() => {
+                this.showNotification(
+                    '✨ Simplified Interface Ready!\n• Double-click any row to remove it\n• Hover to see remove button\n• Only essential fields: Crane Type, Capacity, Qty, Rate',
+                    'info',
+                    6000
+                );
+            }, 1000);
         }
     }
 
