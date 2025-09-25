@@ -1397,9 +1397,9 @@ class LuxuryEnhancement {
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td style="border-right: 1px solid #4472C4; padding: 8px;">${crane}</td>
-                        <td style="border-right: 1px solid #4472C4; padding: 8px; text-align: center;">${capacity}</td>
-                        <td style="border-right: 1px solid #4472C4; padding: 8px; text-align: center;">${qty}</td>
+                        <td style="border-right: 1px solid #D4AF37; padding: 8px;">${crane}</td>
+                        <td style="border-right: 1px solid #D4AF37; padding: 8px; text-align: center;">${capacity}</td>
+                        <td style="border-right: 1px solid #D4AF37; padding: 8px; text-align: center;">${qty}</td>
                         <td style="padding: 8px; text-align: right; color: #2e7d32; font-weight: 600;">₹${rate.toLocaleString("en-IN")}</td>
                     `;
                     pdfTableBody.appendChild(tr);
