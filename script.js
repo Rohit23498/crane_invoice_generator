@@ -1036,10 +1036,13 @@ class LuxuryEnhancement {
         
         // Clear existing rows and add one simplified row
         this.initializeSimplifiedRows();
+        
+        // Initialize crane images section
+        this.updateCraneImages();
     }
 
     /**
-     * Create simplified crane row (Crane Type, Capacity, Qty, Rate only)
+     * Create crane row with 5 columns (Crane Type, Capacity, Qty, Rate, Amount)
      */
     createSimplifiedCraneRow(crane = '', capacity = '', qty = 0, rate = 0) {
         const div = document.createElement('div');
@@ -1097,16 +1100,6 @@ class LuxuryEnhancement {
         };
         updateCapacityOptions(craneSelect.value);
 
-        // Update capacity when crane changes
-        craneSelect.addEventListener('change', () => {
-            updateCapacityOptions(craneSelect.value);
-            this.updateCraneImages();
-        });
-
-        capacitySelect.addEventListener('change', () => {
-            this.updateCraneImages();
-        });
-
         // 3. Quantity Input
         const qtyInput = document.createElement('input');
         qtyInput.type = 'number';
@@ -1133,6 +1126,57 @@ class LuxuryEnhancement {
         rateInput.style.cssText = qtyInput.style.cssText;
         rateInput.style.textAlign = 'right';
 
+        // 5. Amount Display (calculated automatically)
+        const amountDisplay = document.createElement('div');
+        amountDisplay.style.cssText = `
+            padding: 12px;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            background: rgba(42, 42, 42, 0.6);
+            color: var(--color-accent-gold);
+            font-family: var(--font-sans);
+            text-align: right;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        `;
+        
+        const updateAmount = () => {
+            const qty = parseFloat(qtyInput.value) || 0;
+            const rateVal = parseFloat(rateInput.value) || 0;
+            const amount = qty * rateVal;
+            amountDisplay.textContent = amount > 0 ? `₹ ${amount.toLocaleString('en-IN')}` : '₹ 0';
+        };
+        
+        // Initial calculation
+        updateAmount();
+
+        // Update capacity when crane changes
+        craneSelect.addEventListener('change', () => {
+            updateCapacityOptions(craneSelect.value);
+            setTimeout(() => this.updateCraneImages(), 100);
+        });
+
+        capacitySelect.addEventListener('change', () => {
+            setTimeout(() => this.updateCraneImages(), 100);
+        });
+
+        // Update images and amount when quantity or rate changes
+        qtyInput.addEventListener('change', () => {
+            updateAmount();
+            setTimeout(() => this.updateCraneImages(), 100);
+        });
+
+        qtyInput.addEventListener('input', updateAmount);
+
+        rateInput.addEventListener('change', () => {
+            updateAmount();
+            setTimeout(() => this.updateCraneImages(), 100);
+        });
+
+        rateInput.addEventListener('input', updateAmount);
+
         // Add luxury styling on focus
         [craneSelect, capacitySelect, qtyInput, rateInput].forEach(element => {
             element.addEventListener('focus', () => {
@@ -1153,6 +1197,7 @@ class LuxuryEnhancement {
         div.appendChild(capacitySelect);
         div.appendChild(qtyInput);
         div.appendChild(rateInput);
+        div.appendChild(amountDisplay);
 
         // Add double-click to remove functionality
         div.addEventListener('dblclick', () => {
@@ -1203,6 +1248,18 @@ class LuxuryEnhancement {
             }
         });
 
+        // Add double-click remove functionality
+        div.addEventListener('dblclick', () => {
+            if (confirm('Remove this crane from the selection?')) {
+                div.style.transform = 'translateX(-100%)';
+                div.style.opacity = '0';
+                setTimeout(() => {
+                    div.remove();
+                    this.updateCraneImages();
+                }, 300);
+            }
+        });
+
         div.addEventListener('mouseenter', () => {
             removeIndicator.style.display = 'flex';
         });
@@ -1227,12 +1284,10 @@ class LuxuryEnhancement {
             div.style.transform = 'translateY(0)';
         }, 10);
 
-        // Update crane images
+        // Update crane images after animation
         setTimeout(() => {
-            if (typeof window.updateCraneImages === 'function') {
-                window.updateCraneImages();
-            }
-        }, 100);
+            this.updateCraneImages();
+        }, 600);
     }
 
     /**
@@ -1247,10 +1302,30 @@ class LuxuryEnhancement {
         // Get unique crane selections
         const selectedCranes = new Set();
         document.querySelectorAll('#tableRows .dynamic-row').forEach(row => {
-            const crane = row.children[0].value;
-            const capacity = row.children[1].value;
-            selectedCranes.add(JSON.stringify({crane, capacity}));
+            // Skip header rows
+            if (row.style.background && (row.style.background.includes('accent-gold') || row.style.background.includes('#D4AF37'))) {
+                return;
+            }
+            
+            if (row.children.length >= 2) {
+                const crane = row.children[0].value;
+                const capacity = row.children[1].value;
+                if (crane && capacity) {
+                    selectedCranes.add(JSON.stringify({crane, capacity}));
+                }
+            }
         });
+
+        // Show message if no cranes selected
+        if (selectedCranes.size === 0) {
+            container.innerHTML = `
+                <div class="crane-images-empty">
+                    <p>🏗️ No cranes selected yet</p>
+                    <p style="font-size: 14px; margin-top: 8px;">Add crane selections above to see images here</p>
+                </div>
+            `;
+            return;
+        }
 
         // Crane images mapping (simplified)
         const craneImages = {
@@ -1300,13 +1375,14 @@ class LuxuryEnhancement {
         if (headerRow) {
             headerRow.innerHTML = `
                 <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Crane Type</div>
-                <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Capacity</div>
+                <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Capacity (Tonnes)</div>
                 <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Qty</div>
-                <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Rate (₹)</div>
+                <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Rate (Rs.)</div>
+                <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Amount (Rs.)</div>
             `;
             
-            // Update the grid layout for header
-            headerRow.style.gridTemplateColumns = '2.5fr 1.5fr 1fr 1.2fr';
+            // Update the grid layout for 5 columns
+            headerRow.style.gridTemplateColumns = '2fr 1.5fr 0.8fr 1fr 1fr';
             headerRow.style.background = 'linear-gradient(135deg, var(--color-accent-gold), #c5a028)';
             headerRow.style.color = 'var(--color-primary-dark)';
             headerRow.querySelectorAll('div').forEach(div => {
