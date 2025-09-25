@@ -390,19 +390,114 @@ textarea {
     box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4) !important;
 }
 
-/* === Dynamic Row Styling === */
-.dynamic-row {
-    display: grid !important;
-    grid-template-columns: 2fr 1.5fr 0.8fr 1fr 1fr !important; /* Updated to 5 columns */
-    gap: var(--spacing-lg) !important;
-    margin-bottom: var(--spacing-lg) !important;
-    align-items: end !important;
-    background: rgba(42, 42, 42, 0.6) !important;
+/* === Table Styling === */
+.table-container {
+    background: rgba(42, 42, 42, 0.6);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
-    padding: var(--spacing-xl) !important;
-    border-radius: 16px !important;
-    border: 1px solid var(--color-border) !important;
+    border-radius: 16px;
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    overflow-x: auto;
+}
+
+.selection-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+    font-family: var(--font-primary);
+}
+
+.selection-table thead {
+    background: linear-gradient(135deg, var(--color-accent-gold), #b8941f);
+}
+
+.selection-table th {
+    padding: var(--spacing-lg);
+    text-align: left;
+    color: var(--color-background);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--color-accent-gold);
+    position: relative;
+}
+
+.selection-table th:not(:last-child) {
+    border-right: 1px solid rgba(26, 26, 26, 0.2);
+}
+
+.selection-table tbody tr {
+    transition: all var(--transition-base);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.selection-table tbody tr:hover {
+    background: rgba(212, 175, 55, 0.1);
+    transform: scale(1.02);
+    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+}
+
+.selection-table td {
+    padding: var(--spacing-lg);
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.table-select {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: rgba(26, 26, 26, 0.8);
+    border: 2px solid var(--color-border);
+    border-radius: 8px;
+    color: var(--color-text);
+    font-size: 0.9rem;
+    transition: all var(--transition-base);
+    cursor: pointer;
+}
+
+.table-select:focus {
+    outline: none;
+    border-color: var(--color-accent-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+.table-input {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: rgba(26, 26, 26, 0.8);
+    border: 2px solid var(--color-border);
+    border-radius: 8px;
+    color: var(--color-text);
+    font-size: 0.9rem;
+    text-align: center;
+    transition: all var(--transition-base);
+}
+
+.table-input:focus {
+    outline: none;
+    border-color: var(--color-accent-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+.table-input:read-only {
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--color-accent-gold);
+    font-weight: 600;
+    cursor: not-allowed;
+}
+
+.amount-input {
+    background: rgba(212, 175, 55, 0.2) !important;
+    color: var(--color-accent-gold) !important;
+    font-weight: 700 !important;
+    border-color: var(--color-accent-gold) !important;
+}
+
+/* Legacy dynamic-row support */
+.dynamic-row {
     transition: all var(--transition-base);
 }
 
@@ -526,9 +621,19 @@ textarea {
         margin-top: 100px !important;
     }
     
-    .dynamic-row {
-        grid-template-columns: 2fr 1.2fr 0.8fr 1fr 1fr !important; /* Updated to 5 columns */
-        gap: var(--spacing-md) !important;
+    .table-container {
+        padding: var(--spacing-md);
+    }
+    
+    .selection-table th,
+    .selection-table td {
+        padding: var(--spacing-md);
+    }
+    
+    .table-select,
+    .table-input {
+        font-size: 0.8rem;
+        padding: var(--spacing-sm);
     }
 }
 
@@ -554,13 +659,30 @@ textarea {
         grid-template-columns: 1fr !important;
     }
     
-    .dynamic-row {
-        grid-template-columns: 1fr !important;
-        gap: var(--spacing-md) !important;
-    }
-    
     .action-buttons {
         flex-direction: column !important;
+    }
+    
+    .table-container {
+        padding: var(--spacing-sm);
+        overflow-x: scroll;
+    }
+    
+    .selection-table {
+        min-width: 600px; /* Ensure table doesn't get too cramped */
+    }
+    
+    .selection-table th,
+    .selection-table td {
+        padding: var(--spacing-sm);
+        font-size: 0.75rem;
+    }
+    
+    .table-select,
+    .table-input {
+        font-size: 0.75rem;
+        padding: 6px;
+        min-width: 80px;
     }
     
     .crane-images-container {

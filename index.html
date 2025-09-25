@@ -570,16 +570,21 @@
             <div class="section">
                 <h2 class="section-title">🏗️ Crane Selection</h2>
                 
-                <!-- Column Headers -->
-                <div class="dynamic-row" style="background: #e2e8f0; font-weight: 600; color: #4a5568; margin-bottom: 10px;">
-                    <div style="display: flex; align-items: center;">Crane Type</div>
-                    <div style="display: flex; align-items: center;">Capacity (Tonnes)</div>
-                    <div style="display: flex; align-items: center;">Qty</div>
-                    <div style="display: flex; align-items: center;">Rate (₹)</div>
-                    <div style="display: flex; align-items: center;">Amount (₹)</div>
+                <div class="table-container">
+                    <table id="craneSelectionTable" class="selection-table">
+                        <thead>
+                            <tr>
+                                <th>Crane Type</th>
+                                <th>Capacity (Tonnes)</th>
+                                <th>Qty</th>
+                                <th>Rate (₹)</th>
+                                <th>Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableRows">
+                        </tbody>
+                    </table>
                 </div>
-                
-    <div id="tableRows"></div>
                 <div class="action-buttons">
                     <button type="button" onclick="addRow()" class="btn btn-secondary">
                         ➕ Add Row
@@ -929,11 +934,13 @@
         };
 
         function addRow(crane = '', capacity = '', qty = 0, rate = 0) {
-            const div = document.createElement('div');
-            div.classList.add('dynamic-row');
+            const tr = document.createElement('tr');
+            tr.classList.add('dynamic-row');
 
-            // Crane dropdown
+            // Crane Type Cell
+            const craneCell = document.createElement('td');
             const craneSelect = document.createElement('select');
+            craneSelect.className = 'table-select';
             for (const craneType in cranesData) {
                 const option = document.createElement('option');
                 option.value = craneType;
@@ -941,9 +948,12 @@
                 if (craneType === crane) option.selected = true;
                 craneSelect.appendChild(option);
             }
+            craneCell.appendChild(craneSelect);
 
-            // Capacity dropdown
+            // Capacity Cell
+            const capacityCell = document.createElement('td');
             const capacitySelect = document.createElement('select');
+            capacitySelect.className = 'table-select';
             function updateCapacityOptions(selectedCrane) {
                 capacitySelect.innerHTML = '';
                 cranesData[selectedCrane].forEach(cap => {
@@ -955,6 +965,7 @@
                 });
             }
             updateCapacityOptions(craneSelect.value);
+            capacityCell.appendChild(capacitySelect);
 
             craneSelect.addEventListener('change', () => {
                 updateCapacityOptions(craneSelect.value);
@@ -965,31 +976,52 @@
                 updateCraneImages();
             });
 
-            // Quantity, Rate, Amount
+            // Quantity Cell
+            const qtyCell = document.createElement('td');
             const qtyInput = document.createElement('input');
-            qtyInput.type = 'number'; qtyInput.value = qty; qtyInput.placeholder = 'Qty';
-            qtyInput.min = 0; qtyInput.oninput = () => calculateAmt(div);
+            qtyInput.type = 'number'; 
+            qtyInput.value = qty; 
+            qtyInput.placeholder = 'Qty';
+            qtyInput.min = 0; 
+            qtyInput.className = 'table-input';
+            qtyInput.oninput = () => calculateAmt(tr);
+            qtyCell.appendChild(qtyInput);
 
+            // Rate Cell
+            const rateCell = document.createElement('td');
             const rateInput = document.createElement('input');
-            rateInput.type = 'number'; rateInput.value = rate; rateInput.placeholder = 'Rate';
-            rateInput.min = 0; rateInput.oninput = () => calculateAmt(div);
+            rateInput.type = 'number'; 
+            rateInput.value = rate; 
+            rateInput.placeholder = 'Rate';
+            rateInput.min = 0; 
+            rateInput.className = 'table-input';
+            rateInput.oninput = () => calculateAmt(tr);
+            rateCell.appendChild(rateInput);
 
+            // Amount Cell
+            const amtCell = document.createElement('td');
             const amtInput = document.createElement('input');
-            amtInput.type = 'number'; amtInput.placeholder = 'Amt'; amtInput.value = 0; amtInput.readOnly = true;
+            amtInput.type = 'number'; 
+            amtInput.placeholder = 'Amount'; 
+            amtInput.value = 0; 
+            amtInput.readOnly = true;
+            amtInput.className = 'table-input amount-input';
+            amtCell.appendChild(amtInput);
 
-            div.appendChild(craneSelect);
-            div.appendChild(capacitySelect);
-            div.appendChild(qtyInput);
-            div.appendChild(rateInput);
-            div.appendChild(amtInput);
+            // Append all cells to row
+            tr.appendChild(craneCell);
+            tr.appendChild(capacityCell);
+            tr.appendChild(qtyCell);
+            tr.appendChild(rateCell);
+            tr.appendChild(amtCell);
 
-            document.getElementById('tableRows').appendChild(div);
+            document.getElementById('tableRows').appendChild(tr);
         }
 
         function calculateAmt(row) {
-            const qty = parseFloat(row.children[2].value) || 0;
-            const rate = parseFloat(row.children[3].value) || 0;
-            row.children[4].value = qty * rate;
+            const qty = parseFloat(row.children[2].querySelector('input').value) || 0;
+            const rate = parseFloat(row.children[3].querySelector('input').value) || 0;
+            row.children[4].querySelector('input').value = qty * rate;
         }
 
         function updateCraneImages() {
@@ -999,8 +1031,8 @@
             // Get unique crane selections
             const selectedCranes = new Set();
             document.querySelectorAll('#tableRows .dynamic-row').forEach(row => {
-                const crane = row.children[0].value;
-                const capacity = row.children[1].value;
+                const crane = row.children[0].querySelector('select').value;
+                const capacity = row.children[1].querySelector('select').value;
                 selectedCranes.add(JSON.stringify({crane, capacity}));
             });
 
@@ -1062,11 +1094,11 @@
             let subtotal = 0;
 
             document.querySelectorAll('#tableRows .dynamic-row').forEach(row => {
-                const crane = row.children[0].value;
-                const capacity = row.children[1].value;
-                const qty = row.children[2].value;
-                const rate = row.children[3].value;
-                const amt = row.children[4].value;
+                const crane = row.children[0].querySelector('select').value;
+                const capacity = row.children[1].querySelector('select').value;
+                const qty = row.children[2].querySelector('input').value;
+                const rate = row.children[3].querySelector('input').value;
+                const amt = row.children[4].querySelector('input').value;
 
                 subtotal += parseFloat(amt) || 0;
 

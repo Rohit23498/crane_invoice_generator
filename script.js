@@ -1462,10 +1462,14 @@ class LuxuryEnhancement {
             }
             
             if (row.children.length >= 2) {
-                const crane = row.children[0].value;
-                const capacity = row.children[1].value;
-                if (crane && capacity) {
-                    selectedCranes.add(JSON.stringify({crane, capacity}));
+                const craneSelect = row.children[0].querySelector('select');
+                const capacitySelect = row.children[1].querySelector('select');
+                if (craneSelect && capacitySelect) {
+                    const crane = craneSelect.value;
+                    const capacity = capacitySelect.value;
+                    if (crane && capacity) {
+                        selectedCranes.add(JSON.stringify({crane, capacity}));
+                    }
                 }
             }
         });
@@ -1569,10 +1573,10 @@ class LuxuryEnhancement {
                         return;
                     }
                     
-                    const crane = row.children[0].value;
-                    const capacity = row.children[1].value;
-                    const qty = parseFloat(row.children[2].value) || 0;
-                    const rate = parseFloat(row.children[3].value) || 0;
+                    const crane = row.children[0].querySelector('select').value;
+                    const capacity = row.children[1].querySelector('select').value;
+                    const qty = parseFloat(row.children[2].querySelector('input').value) || 0;
+                    const rate = parseFloat(row.children[3].querySelector('input').value) || 0;
                     const amount = qty * rate;
 
                     subtotal += amount;
