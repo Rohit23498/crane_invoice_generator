@@ -1126,31 +1126,7 @@ class LuxuryEnhancement {
         rateInput.style.cssText = qtyInput.style.cssText;
         rateInput.style.textAlign = 'right';
 
-        // 5. Amount Display (calculated automatically)
-        const amountDisplay = document.createElement('div');
-        amountDisplay.style.cssText = `
-            padding: 12px;
-            border: 2px solid var(--color-border);
-            border-radius: 8px;
-            background: rgba(42, 42, 42, 0.6);
-            color: var(--color-accent-gold);
-            font-family: var(--font-sans);
-            text-align: right;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-        `;
-        
-        const updateAmount = () => {
-            const qty = parseFloat(qtyInput.value) || 0;
-            const rateVal = parseFloat(rateInput.value) || 0;
-            const amount = qty * rateVal;
-            amountDisplay.textContent = amount > 0 ? `₹ ${amount.toLocaleString('en-IN')}` : '₹ 0';
-        };
-        
-        // Initial calculation
-        updateAmount();
+        // Remove amount display - not needed in 4-column layout
 
         // Update capacity when crane changes
         craneSelect.addEventListener('change', () => {
@@ -1162,20 +1138,14 @@ class LuxuryEnhancement {
             setTimeout(() => this.updateCraneImages(), 100);
         });
 
-        // Update images and amount when quantity or rate changes
+        // Update images when quantity or rate changes
         qtyInput.addEventListener('change', () => {
-            updateAmount();
             setTimeout(() => this.updateCraneImages(), 100);
         });
-
-        qtyInput.addEventListener('input', updateAmount);
 
         rateInput.addEventListener('change', () => {
-            updateAmount();
             setTimeout(() => this.updateCraneImages(), 100);
         });
-
-        rateInput.addEventListener('input', updateAmount);
 
         // Add luxury styling on focus
         [craneSelect, capacitySelect, qtyInput, rateInput].forEach(element => {
@@ -1192,12 +1162,14 @@ class LuxuryEnhancement {
             });
         });
 
-        // Add elements to row
+        // Add elements to row (4 columns)
         div.appendChild(craneSelect);
         div.appendChild(capacitySelect);
         div.appendChild(qtyInput);
         div.appendChild(rateInput);
-        div.appendChild(amountDisplay);
+
+        // Set grid template for 4-column layout
+        div.style.gridTemplateColumns = '2.5fr 1.5fr 1fr 1.2fr';
 
         // Add double-click to remove functionality
         div.addEventListener('dblclick', () => {
@@ -1378,11 +1350,10 @@ class LuxuryEnhancement {
                 <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Capacity (Tonnes)</div>
                 <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Qty</div>
                 <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Rate (Rs.)</div>
-                <div style="display: flex; align-items: center; font-weight: 600; color: #4a5568;">Amount (Rs.)</div>
             `;
             
-            // Update the grid layout for 5 columns
-            headerRow.style.gridTemplateColumns = '2fr 1.5fr 0.8fr 1fr 1fr';
+            // Update the grid layout for 4 columns
+            headerRow.style.gridTemplateColumns = '2.5fr 1.5fr 1fr 1.2fr';
             headerRow.style.background = 'linear-gradient(135deg, var(--color-accent-gold), #c5a028)';
             headerRow.style.color = 'var(--color-primary-dark)';
             headerRow.querySelectorAll('div').forEach(div => {
@@ -1426,11 +1397,10 @@ class LuxuryEnhancement {
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${crane}</td>
-                        <td>${capacity}</td>
-                        <td>${qty}</td>
-                        <td>₹${rate.toLocaleString("en-IN")}</td>
-                        <td>₹${amount.toLocaleString("en-IN")}</td>
+                        <td style="border-right: 1px solid #4472C4; padding: 8px;">${crane}</td>
+                        <td style="border-right: 1px solid #4472C4; padding: 8px; text-align: center;">${capacity}</td>
+                        <td style="border-right: 1px solid #4472C4; padding: 8px; text-align: center;">${qty}</td>
+                        <td style="padding: 8px; text-align: right; color: #2e7d32; font-weight: 600;">₹${rate.toLocaleString("en-IN")}</td>
                     `;
                     pdfTableBody.appendChild(tr);
                 });
