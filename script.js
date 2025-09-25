@@ -32,6 +32,7 @@ class LuxuryEnhancement {
         this.enhanceFormExperience();
         this.addLoadingStates();
         this.initSmoothScrolling();
+        this.initDigitalSignature();
         
         // Add body class to indicate luxury mode is active
         document.body.classList.add('luxury-enhanced');
@@ -501,27 +502,41 @@ class LuxuryEnhancement {
      * Setup form validation
      */
     setupFormValidation() {
-        const inputs = document.querySelectorAll('input, textarea');
+        // Target client information inputs specifically
+        const clientInputs = [
+            'clientCompany',
+            'clientGST', 
+            'clientAddress',
+            'clientContact',
+            'clientEmail',
+            'clientAttention',
+            'signatory-name',
+            'signatory-designation'
+        ];
         
-        inputs.forEach(input => {
-            // Add validation on blur
-            input.addEventListener('blur', () => {
-                this.validateInput(input);
-            });
-
-            // Clear validation error on input
-            input.addEventListener('input', () => {
-                this.clearValidationError(input);
-            });
-
-            // Add real-time formatting for specific fields
-            if (input.id === 'clientGSTInput') {
-                input.addEventListener('input', (e) => {
-                    this.formatGSTInput(e.target);
+        clientInputs.forEach(inputId => {
+            const input = document.getElementById(inputId);
+            if (input) {
+                // Add validation on blur (when user leaves the field)
+                input.addEventListener('blur', () => {
+                    this.validateInput(input);
                 });
-            } else if (input.id === 'clientContactInput') {
-                input.addEventListener('input', (e) => {
-                    this.formatContactInput(e.target);
+
+                // Clear validation error and add success styling on input
+                input.addEventListener('input', () => {
+                    this.clearValidationError(input);
+                    
+                    // Add real-time formatting for specific fields
+                    if (inputId === 'clientGST') {
+                        this.formatGSTInput(input);
+                    } else if (inputId === 'clientContact') {
+                        this.formatContactInput(input);
+                    }
+                });
+
+                // Add focus styling
+                input.addEventListener('focus', () => {
+                    this.addFocusStyles(input);
                 });
             }
         });
@@ -532,7 +547,7 @@ class LuxuryEnhancement {
      */
     addInputFormatting() {
         // Enhance GST input
-        const gstInput = document.getElementById('clientGSTInput');
+        const gstInput = document.getElementById('clientGST');
         if (gstInput) {
             gstInput.placeholder = 'e.g., 27AAICE7407Q1Z0 (15 characters)';
             gstInput.maxLength = 15;
@@ -541,14 +556,14 @@ class LuxuryEnhancement {
         }
 
         // Enhance Email input
-        const emailInput = document.getElementById('clientEmailInput');
+        const emailInput = document.getElementById('clientEmail');
         if (emailInput) {
             emailInput.placeholder = 'e.g., company@example.com';
             emailInput.setAttribute('title', 'Enter a valid email address');
         }
 
         // Enhance Contact input
-        const contactInput = document.getElementById('clientContactInput');
+        const contactInput = document.getElementById('clientContact');
         if (contactInput) {
             contactInput.placeholder = 'e.g., 9876543210 or 022-12345678';
             contactInput.setAttribute('title', 'Enter 10-digit mobile number or landline with STD code');
@@ -633,40 +648,97 @@ class LuxuryEnhancement {
     }
 
     /**
-     * Validate input
+     * Validate input with enhanced feedback
      */
     validateInput(input) {
         const value = input.value.trim();
         let isValid = true;
         let message = '';
 
+        // Define required fields
+        const requiredFields = ['clientCompany', 'clientAddress'];
+
         // Check if field is required and empty
-        if (input.hasAttribute('required') && !value) {
+        if (requiredFields.includes(input.id) && !value) {
             isValid = false;
             message = 'This field is required';
         } else if (value) {
             // Validate based on input type and ID
-            if (input.type === 'email' || input.id === 'clientEmailInput') {
-                if (!this.validateEmail(value)) {
-                    isValid = false;
-                    message = 'Please enter a valid email address (e.g., user@domain.com)';
-                }
-            } else if (input.id === 'clientGSTInput') {
-                if (!this.validateGSTNumber(value)) {
-                    isValid = false;
-                    message = 'Please enter a valid GST number (15 characters: 27AAICE7407Q1Z0)';
-                }
-            } else if (input.id === 'clientContactInput') {
-                if (!this.validateContactNumber(value)) {
-                    isValid = false;
-                    message = 'Please enter a valid contact number (10 digits: 9876543210)';
-                }
+            switch (input.id) {
+                case 'clientCompany':
+                    if (value.length < 2) {
+                        isValid = false;
+                        message = 'Company name must be at least 2 characters';
+                    }
+                    break;
+                    
+                case 'clientEmail':
+                    if (!this.validateEmail(value)) {
+                        isValid = false;
+                        message = 'Please enter a valid email address (e.g., example@company.com)';
+                    }
+                    break;
+                    
+                case 'clientGST':
+                    if (!this.validateGSTNumber(value)) {
+                        isValid = false;
+                        message = 'Please enter a valid 15-digit GST number (e.g., 27AAICE7407Q1Z0)';
+                    }
+                    break;
+                    
+                case 'clientContact':
+                    if (!this.validateContactNumber(value)) {
+                        isValid = false;
+                        message = 'Please enter a valid 10-digit mobile number (e.g., 9876543210)';
+                    }
+                    break;
+                    
+                case 'clientAddress':
+                    if (value.length < 10) {
+                        isValid = false;
+                        message = 'Please enter a complete address (minimum 10 characters)';
+                    }
+                    break;
+                    
+                case 'clientAttention':
+                    if (value && value.length < 2) {
+                        isValid = false;
+                        message = 'Contact person name must be at least 2 characters';
+                    }
+                    break;
+                    
+                case 'signatory-name':
+                    if (value && value.length < 2) {
+                        isValid = false;
+                        message = 'Signatory name must be at least 2 characters';
+                    }
+                    break;
+                    
+                case 'signatory-designation':
+                    if (value && value.length < 2) {
+                        isValid = false;
+                        message = 'Designation must be at least 2 characters';
+                    }
+                    break;
             }
         }
 
-        if (!isValid) {
+        // Clear any existing success messages
+        const successElement = input.parentElement.querySelector('.validation-success');
+        if (successElement) {
+            successElement.remove();
+        }
+
+        if (isValid && value) {
+            this.clearValidationError(input);
+            // Show success for validated fields (not just cleared fields)
+            if (['clientEmail', 'clientGST', 'clientContact'].includes(input.id)) {
+                this.showValidationSuccess(input);
+            }
+        } else if (!isValid) {
             this.showValidationError(input, message);
         } else {
+            // Field is empty but not required
             this.clearValidationError(input);
         }
 
@@ -714,12 +786,12 @@ class LuxuryEnhancement {
      */
     validateAllFields() {
         const requiredFields = [
-            { id: 'clientCompanyInput', name: 'Company Name', required: true },
-            { id: 'clientGSTInput', name: 'GST Number', required: false },
-            { id: 'clientContactInput', name: 'Contact Number', required: true },
-            { id: 'clientEmailInput', name: 'Email Address', required: false },
-            { id: 'clientAttentionInput', name: 'Contact Person', required: false },
-            { id: 'clientAddressInput', name: 'Address', required: true }
+            { id: 'clientCompany', name: 'Company Name', required: true },
+            { id: 'clientGST', name: 'GST Number', required: false },
+            { id: 'clientContact', name: 'Contact Number', required: true },
+            { id: 'clientEmail', name: 'Email Address', required: false },
+            { id: 'clientAttention', name: 'Contact Person', required: false },
+            { id: 'clientAddress', name: 'Address', required: true }
         ];
 
         let validationErrors = [];
@@ -913,36 +985,163 @@ class LuxuryEnhancement {
     }
 
     /**
-     * Show validation error
+     * Show validation error with enhanced red highlighting
      */
     showValidationError(input, message) {
-        input.style.borderColor = '#dc3545';
+        // Enhanced red styling for invalid inputs
+        input.style.cssText = `
+            border: 2px solid #dc3545 !important;
+            background: #fff5f5 !important;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+            animation: shake 0.3s ease-in-out;
+        `;
         
+        // Add shake animation styles to document if not already present
+        if (!document.querySelector('#validation-styles')) {
+            const style = document.createElement('style');
+            style.id = 'validation-styles';
+            style.textContent = `
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    25% { transform: translateX(-5px); }
+                    75% { transform: translateX(5px); }
+                }
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; transform: translateY(0); }
+                    to { opacity: 0; transform: translateY(-10px); }
+                }
+                .validation-success {
+                    border: 2px solid #28a745 !important;
+                    background: #f8fff9 !important;
+                    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1) !important;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Create or update error message
         let errorElement = input.parentElement.querySelector('.validation-error');
         if (!errorElement) {
             errorElement = document.createElement('div');
             errorElement.className = 'validation-error';
             errorElement.style.cssText = `
                 color: #dc3545;
-                font-size: 0.875rem;
-                margin-top: 4px;
-                font-weight: 500;
+                font-size: 13px;
+                margin-top: 6px;
+                font-weight: 600;
+                padding: 4px 8px;
+                background: #fff5f5;
+                border: 1px solid #dc3545;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                animation: fadeIn 0.3s ease-in;
             `;
             input.parentElement.appendChild(errorElement);
         }
         
-        errorElement.textContent = message;
+        errorElement.innerHTML = `
+            <span style="color: #dc3545; margin-right: 6px;">⚠️</span>
+            ${message}
+        `;
     }
 
     /**
-     * Clear validation error
+     * Clear validation error and restore normal styling
      */
     clearValidationError(input) {
-        input.style.borderColor = '';
+        // Reset to normal styling
+        input.style.cssText = `
+            border: 1px solid #ccc !important;
+            background: white !important;
+            box-shadow: none !important;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+            font-weight: 500;
+        `;
+        
+        // Remove error message
         const errorElement = input.parentElement.querySelector('.validation-error');
         if (errorElement) {
-            errorElement.remove();
+            errorElement.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(() => errorElement.remove(), 300);
         }
+    }
+
+    /**
+     * Add focus styles to input
+     */
+    addFocusStyles(input) {
+        // Don't override error styles if input is invalid
+        const hasError = input.parentElement.querySelector('.validation-error');
+        if (!hasError) {
+            input.style.cssText = `
+                border: 2px solid #D4AF37 !important;
+                background: white !important;
+                box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1) !important;
+                padding: 8px 12px;
+                border-radius: 4px;
+                font-size: 14px;
+                width: 100%;
+                font-weight: 500;
+            `;
+        }
+    }
+
+    /**
+     * Show success validation styling
+     */
+    showValidationSuccess(input) {
+        input.style.cssText = `
+            border: 2px solid #28a745 !important;
+            background: #f8fff9 !important;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1) !important;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+            font-weight: 500;
+        `;
+        
+        // Add success checkmark
+        let successElement = input.parentElement.querySelector('.validation-success');
+        if (!successElement) {
+            successElement = document.createElement('div');
+            successElement.className = 'validation-success';
+            successElement.style.cssText = `
+                color: #28a745;
+                font-size: 13px;
+                margin-top: 6px;
+                font-weight: 600;
+                padding: 4px 8px;
+                background: #f8fff9;
+                border: 1px solid #28a745;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                animation: fadeIn 0.3s ease-in;
+            `;
+            input.parentElement.appendChild(successElement);
+        }
+        
+        successElement.innerHTML = `
+            <span style="color: #28a745; margin-right: 6px;">✅</span>
+            Valid format
+        `;
+        
+        // Remove success message after 2 seconds
+        setTimeout(() => {
+            if (successElement) {
+                successElement.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => successElement.remove(), 300);
+            }
+        }, 2000);
     }
 
     /**
@@ -1407,6 +1606,9 @@ class LuxuryEnhancement {
 
                 pdfSubtotal.textContent = `₹${subtotal.toLocaleString("en-IN")}`;
 
+                // Add digital signature to PDF preview
+                this.addSignatureToPDFPreview();
+
                 // Call the original function if it exists
                 if (originalGenerateMultiPagePDF) {
                     originalGenerateMultiPagePDF();
@@ -1415,6 +1617,86 @@ class LuxuryEnhancement {
                     this.generateSimplePDF();
                 }
             };
+        }
+    }
+
+    /**
+     * Add digital signature to PDF preview
+     */
+    addSignatureToPDFPreview() {
+        const signatureDetails = this.getSignatureDetails();
+        const pdfPreview = document.getElementById('pdf-preview');
+        
+        if (!pdfPreview) return;
+        
+        // Remove existing signature section
+        const existingSignature = pdfPreview.querySelector('.pdf-signature-section');
+        if (existingSignature) {
+            existingSignature.remove();
+        }
+        
+        // Create signature section for PDF
+        if (signatureDetails.signatureDataURL || signatureDetails.name) {
+            const signatureSection = document.createElement('div');
+            signatureSection.className = 'pdf-signature-section';
+            signatureSection.style.cssText = `
+                margin-top: 30px;
+                padding: 20px;
+                border-top: 2px solid #D4AF37;
+                background: #fafafa;
+                page-break-inside: avoid;
+            `;
+            
+            let signatureHTML = `
+                <h4 style="color: #D4AF37; margin: 0 0 15px 0; font-size: 16px; font-weight: bold;">✍️ Authorized Signature</h4>
+                <div style="display: flex; justify-content: space-between; align-items: end;">
+                    <div style="flex: 1;">
+            `;
+            
+            // Add signature image if available
+            if (signatureDetails.signatureDataURL) {
+                signatureHTML += `
+                    <div style="margin-bottom: 10px;">
+                        <img src="${signatureDetails.signatureDataURL}" 
+                             style="max-width: 200px; max-height: 60px; border: 1px solid #ddd; background: white; border-radius: 4px;"
+                             alt="Digital Signature">
+                    </div>
+                `;
+            }
+            
+            // Add signatory details
+            if (signatureDetails.name) {
+                signatureHTML += `
+                    <div style="border-top: 1px solid #D4AF37; padding-top: 5px; max-width: 200px;">
+                        <div style="font-weight: bold; color: #333; font-size: 14px;">${signatureDetails.name}</div>
+                `;
+                
+                if (signatureDetails.designation) {
+                    signatureHTML += `<div style="color: #666; font-size: 12px; margin-top: 2px;">${signatureDetails.designation}</div>`;
+                }
+                
+                signatureHTML += `</div>`;
+            }
+            
+            signatureHTML += `
+                    </div>
+                    <div style="text-align: right; color: #666; font-size: 11px;">
+                        <div><strong>Date:</strong> ${new Date().toLocaleDateString()}</div>
+                        <div style="margin-top: 2px;"><strong>Time:</strong> ${new Date().toLocaleTimeString()}</div>
+                        <div style="margin-top: 5px; font-size: 10px; font-style: italic;">Digitally Signed</div>
+                    </div>
+                </div>
+            `;
+            
+            signatureSection.innerHTML = signatureHTML;
+            
+            // Insert before the disclaimer
+            const disclaimer = pdfPreview.querySelector('div[style*="This is a digitally signed"]');
+            if (disclaimer) {
+                pdfPreview.insertBefore(signatureSection, disclaimer);
+            } else {
+                pdfPreview.appendChild(signatureSection);
+            }
         }
     }
 
@@ -1611,6 +1893,149 @@ class LuxuryEnhancement {
             const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
             progressBar.style.width = `${Math.min(scrolled, 100)}%`;
         });
+    }
+
+    /**
+     * Initialize digital signature functionality
+     */
+    initDigitalSignature() {
+        const canvas = document.getElementById('signature-canvas');
+        const clearBtn = document.getElementById('clear-signature');
+        const colorPicker = document.getElementById('signature-color');
+        
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        // Set up canvas properties
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#1a1a1a';
+
+        // Mouse events
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            lastX = e.clientX - rect.left;
+            lastY = e.clientY - rect.top;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(currentX, currentY);
+            ctx.stroke();
+
+            lastX = currentX;
+            lastY = currentY;
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDrawing = false;
+        });
+
+        canvas.addEventListener('mouseout', () => {
+            isDrawing = false;
+        });
+
+        // Touch events for mobile
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            lastX = touch.clientX - rect.left;
+            lastY = touch.clientY - rect.top;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const currentX = touch.clientX - rect.left;
+            const currentY = touch.clientY - rect.top;
+
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(currentX, currentY);
+            ctx.stroke();
+
+            lastX = currentX;
+            lastY = currentY;
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isDrawing = false;
+        });
+
+        // Clear button
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                this.showNotification('✅ Signature cleared', 'info', 2000);
+            });
+        }
+
+        // Color picker
+        if (colorPicker) {
+            colorPicker.addEventListener('change', (e) => {
+                ctx.strokeStyle = e.target.value;
+            });
+        }
+
+        // Store reference to canvas for PDF generation
+        this.signatureCanvas = canvas;
+    }
+
+    /**
+     * Get signature data URL for PDF
+     */
+    getSignatureDataURL() {
+        if (!this.signatureCanvas) return null;
+        
+        // Check if canvas has content
+        const ctx = this.signatureCanvas.getContext('2d');
+        const imageData = ctx.getImageData(0, 0, this.signatureCanvas.width, this.signatureCanvas.height);
+        const data = imageData.data;
+        
+        // Check if canvas is blank
+        let isBlank = true;
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i + 3] !== 0) { // Check alpha channel
+                isBlank = false;
+                break;
+            }
+        }
+        
+        return isBlank ? null : this.signatureCanvas.toDataURL('image/png');
+    }
+
+    /**
+     * Get signature details
+     */
+    getSignatureDetails() {
+        const signatory = document.getElementById('signatory-name');
+        const designation = document.getElementById('signatory-designation');
+        
+        return {
+            name: signatory ? signatory.value.trim() : '',
+            designation: designation ? designation.value.trim() : '',
+            signatureDataURL: this.getSignatureDataURL(),
+            timestamp: new Date().toLocaleString()
+        };
     }
 }
 
