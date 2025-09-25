@@ -279,11 +279,48 @@
 
         #pdf-table td {
             padding: 12px 15px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e8e8e8;
+            font-size: 14px;
+            color: #333;
         }
 
-        #pdf-table tr:hover {
-            background: #f8fafc;
+        #pdf-table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        #pdf-table tbody tr:nth-child(odd) {
+            background: white;
+        }
+
+        #pdf-table tbody tr:hover {
+            background: #f0f8ff !important;
+            transition: background 0.2s ease;
+        }
+
+        #pdf-table tbody td:first-child {
+            font-weight: 500;
+            color: #D4AF37;
+        }
+
+        #pdf-table tbody td:nth-child(2) {
+            text-align: center;
+            font-weight: 500;
+        }
+
+        #pdf-table tbody td:nth-child(3) {
+            text-align: center;
+            font-weight: 600;
+            color: #2c5aa0;
+        }
+
+        #pdf-table tbody td:nth-child(4),
+        #pdf-table tbody td:nth-child(5) {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        #pdf-table tbody td:nth-child(5) {
+            color: #2e7d32;
         }
 
         .crane-images-container {
@@ -350,6 +387,60 @@
             .dynamic-row {
                 grid-template-columns: 1.5fr 1fr 0.6fr 0.8fr 0.8fr 0.6fr auto;
                 gap: 8px;
+            }
+        }
+
+        /* PDF Preview Mobile Responsiveness */
+        @media (max-width: 768px) {
+            #pdf-preview {
+                padding: 15px;
+                margin: 15px;
+            }
+
+            /* Make client info section stack on mobile */
+            .client-info-grid {
+                display: block !important;
+                gap: 0 !important;
+            }
+
+            .client-info-grid > div {
+                margin-bottom: 15px !important;
+            }
+
+            .client-info-grid input,
+            .client-info-grid textarea {
+                width: 100% !important;
+                font-size: 16px !important; /* Prevents zoom on iOS */
+            }
+
+            /* Table responsiveness */
+            #pdf-table {
+                font-size: 12px;
+            }
+
+            #pdf-table th,
+            #pdf-table td {
+                padding: 8px 6px;
+            }
+
+            /* Quotation details mobile layout */
+            .quotation-details-grid {
+                grid-template-columns: 1fr !important;
+                text-align: center !important;
+                gap: 15px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Stack table headers vertically on very small screens */
+            #pdf-table thead th {
+                font-size: 11px;
+                padding: 6px 4px;
+            }
+
+            #pdf-table tbody td {
+                font-size: 11px;
+                padding: 6px 4px;
             }
         }
     </style>
@@ -510,65 +601,95 @@
         </div>
         
         <!-- Quotation Details -->
-        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
-            <div>
-                <strong>Ref. No.</strong> <span id="pdf-quotationRef">ECMPL/306/25-26</span>
+        <div class="quotation-details-grid" style="display: grid; grid-template-columns: 1fr auto; gap: 20px; margin-bottom: 25px; border-bottom: 2px solid #D4AF37; padding-bottom: 15px; align-items: center;">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="background: #f0f8ff; padding: 8px 12px; border-radius: 4px; border-left: 4px solid #D4AF37;">
+                    <strong style="color: #D4AF37; font-size: 12px;">REFERENCE NUMBER:</strong><br>
+                    <span id="pdf-quotationRef" style="font-size: 16px; font-weight: 600; color: #333;">ECMPL/306/25-26</span>
+                </div>
             </div>
             <div style="text-align: right;">
-                <h3 style="margin: 0; color: #D4AF37;">Sales Quotation Template</h3>
-                <p style="margin: 5px 0 0 0; font-size: 14px;">
-                    <strong>Date:</strong> <span id="pdf-date"></span> | 
-                    <strong>Time:</strong> <span id="pdf-time"></span>
-                </p>
+                <h3 style="margin: 0 0 10px 0; color: #D4AF37; font-size: 20px; font-weight: bold;">Sales Quotation Template</h3>
+                <div style="background: #fff8e1; padding: 8px 12px; border-radius: 4px; border-right: 4px solid #D4AF37;">
+                    <div style="font-size: 14px; color: #666;">
+                        <strong style="color: #D4AF37;">DATE:</strong> <span id="pdf-date" style="color: #333; font-weight: 600;"></span>
+                    </div>
+                    <div style="font-size: 14px; color: #666; margin-top: 4px;">
+                        <strong style="color: #D4AF37;">TIME:</strong> <span id="pdf-time" style="color: #333; font-weight: 600;"></span>
+                    </div>
+                </div>
             </div>
         </div>
         
         <!-- Recipient Section -->
-        <div style="margin-bottom: 20px;">
-            <h4 style="color: #D4AF37; margin-bottom: 10px;">To:</h4>
-            <div style="border: 1px solid #ddd; padding: 15px; background: #f9f9f9;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <div>
-                        <strong>Company Name:</strong> <input type="text" id="clientCompany" placeholder="Enter Company Name" style="border: none; background: transparent; font-weight: bold; width: 300px;">
+        <div style="margin-bottom: 25px;">
+            <h4 style="color: #D4AF37; margin-bottom: 15px; font-size: 16px; font-weight: bold;">To:</h4>
+            <div style="border: 2px solid #D4AF37; padding: 20px; background: #fafafa; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                
+                <!-- Row 1: Company Name and GST -->
+                <div class="client-info-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 15px; align-items: center;">
+                    <div style="display: flex; flex-direction: column;">
+                        <strong style="color: #D4AF37; font-size: 12px; margin-bottom: 5px;">COMPANY NAME:</strong>
+                        <input type="text" id="clientCompany" placeholder="Enter Company Name" 
+                               style="border: 1px solid #ccc; background: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; width: 100%; font-weight: 500;">
                     </div>
-                    <div>
-                        <strong>GST No:</strong> <input type="text" id="clientGST" placeholder="Enter GST Number" style="border: none; background: transparent; width: 150px;">
-                    </div>
-                </div>
-                <div style="margin-bottom: 8px;">
-                    <strong>Address:</strong> <input type="text" id="clientAddress" placeholder="Enter Complete Address" style="border: none; background: transparent; width: 100%;">
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <div>
-                        <strong>Contact:</strong> <input type="text" id="clientContact" placeholder="Enter Contact Number" style="border: none; background: transparent; width: 150px;">
-                    </div>
-                    <div>
-                        <strong>Email:</strong> <input type="text" id="clientEmail" placeholder="Enter Email Address" style="border: none; background: transparent; width: 200px;">
+                    <div style="display: flex; flex-direction: column;">
+                        <strong style="color: #D4AF37; font-size: 12px; margin-bottom: 5px;">GST NUMBER:</strong>
+                        <input type="text" id="clientGST" placeholder="Enter GST Number" 
+                               style="border: 1px solid #ccc; background: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; width: 100%; text-transform: uppercase;">
                     </div>
                 </div>
-                <div style="margin-top: 10px; text-align: center;">
-                    <strong>Kind Attention:</strong> <input type="text" id="clientAttention" placeholder="Enter Contact Person Name" style="border: none; background: transparent; font-weight: bold; width: 200px;">
+                
+                <!-- Row 2: Address (Full Width) -->
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: #D4AF37; font-size: 12px; margin-bottom: 5px; display: block;">COMPLETE ADDRESS:</strong>
+                    <textarea id="clientAddress" placeholder="Enter Complete Address" rows="2"
+                             style="border: 1px solid #ccc; background: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; width: 100%; resize: vertical; font-family: inherit;"></textarea>
+                </div>
+                
+                <!-- Row 3: Contact and Email -->
+                <div class="client-info-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; align-items: center;">
+                    <div style="display: flex; flex-direction: column;">
+                        <strong style="color: #D4AF37; font-size: 12px; margin-bottom: 5px;">CONTACT NUMBER:</strong>
+                        <input type="text" id="clientContact" placeholder="Enter Contact Number" 
+                               style="border: 1px solid #ccc; background: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; width: 100%;">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <strong style="color: #D4AF37; font-size: 12px; margin-bottom: 5px;">EMAIL ADDRESS:</strong>
+                        <input type="email" id="clientEmail" placeholder="Enter Email Address" 
+                               style="border: 1px solid #ccc; background: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; width: 100%;">
+                    </div>
+                </div>
+                
+                <!-- Row 4: Kind Attention (Centered) -->
+                <div style="text-align: center; padding-top: 10px; border-top: 1px solid #eee;">
+                    <strong style="color: #D4AF37; font-size: 12px; margin-bottom: 5px; display: block;">KIND ATTENTION:</strong>
+                    <input type="text" id="clientAttention" placeholder="Enter Contact Person Name" 
+                           style="border: 1px solid #ccc; background: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; width: 300px; font-weight: 500; text-align: center;">
                 </div>
             </div>
         </div>
-        <table id="pdf-table">
-            <thead>
-                <tr>
-                    <th>Crane Type</th>
-                    <th>Capacity (Tonnes)</th>
-                    <th>Qty</th>
-                    <th>Rate (Rs.)</th>
-                    <th>Amt (Rs.)</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="4" style="text-align:right; font-weight:bold;">Sub Total</td>
-                    <td id="pdf-subtotal" style="font-weight:bold;"></td>
-                </tr>
-            </tfoot>
-        </table>
+        <div style="margin: 25px 0;">
+            <h4 style="color: #D4AF37; margin-bottom: 15px; font-size: 16px; font-weight: bold;">📋 Crane Selection Details</h4>
+            <table id="pdf-table" style="width: 100%; border-collapse: collapse; margin: 0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <thead>
+                    <tr style="background: linear-gradient(135deg, #D4AF37, #c5a028);">
+                        <th style="padding: 12px 15px; text-align: left; font-weight: 600; color: #1a1a1a; font-size: 14px; border-right: 1px solid rgba(26,26,26,0.1);">Crane Type</th>
+                        <th style="padding: 12px 15px; text-align: center; font-weight: 600; color: #1a1a1a; font-size: 14px; border-right: 1px solid rgba(26,26,26,0.1);">Capacity (Tonnes)</th>
+                        <th style="padding: 12px 15px; text-align: center; font-weight: 600; color: #1a1a1a; font-size: 14px; border-right: 1px solid rgba(26,26,26,0.1);">Qty</th>
+                        <th style="padding: 12px 15px; text-align: right; font-weight: 600; color: #1a1a1a; font-size: 14px; border-right: 1px solid rgba(26,26,26,0.1);">Rate (Rs.)</th>
+                        <th style="padding: 12px 15px; text-align: right; font-weight: 600; color: #1a1a1a; font-size: 14px;">Amount (Rs.)</th>
+                    </tr>
+                </thead>
+                <tbody style="background: white;"></tbody>
+                <tfoot>
+                    <tr style="background: #f8f9fa; border-top: 2px solid #D4AF37;">
+                        <td colspan="4" style="text-align: right; font-weight: bold; padding: 15px; color: #D4AF37; font-size: 16px;">Sub Total:</td>
+                        <td id="pdf-subtotal" style="font-weight: bold; padding: 15px; text-align: right; color: #D4AF37; font-size: 16px; border-left: 1px solid #ddd;"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
         
         <!-- Crane Images Section -->
         <div id="crane-images-section" style="margin: 20px 0; text-align: center;">
@@ -578,16 +699,16 @@
             </div>
         </div>
         
-        <h4>Terms & Conditions</h4>
-        <ul style="font-size:12px; line-height:1.5;">
-            <li><b>WARRANTY:</b> 1 YEAR DOMESTIC WARRANTY, INCLUDING ONLY PARTS & LABOR DEFECTS BUT NOT THE DEFECTS DUE TO EXTERNAL CAUSES ACCIDENTAL OR PHYSICAL DAMAGES</li>
-            <li><b>BANK DETAILS:</b> BANK OF INDIA A/C: 017820110000188 (IFSC: BKID0000178) BRANCH (VASAI WEST)</li>
-            <li><b>GST NO:</b> 27AAICE7407Q1Z0 | <b>PAN No:</b> AAICE7407Q</li>
-            <li><b>PAYMENTS:</b> 50% ADVANCE WITH PURCHASE ORDER & 40% BEFORE DISPATCH & 10% BALANCE AFTER TESTING</li>
-            <li><b>DELIVERY PERIOD:</b> WITHIN 3-4 MONTH WORKING DAYS FROM THE DATE OF CONFIRMED PO ALONG WITH ADVANCE</li>
+        <h4 style="color: #D4AF37; font-size: 18px; margin: 30px 0 20px 0; font-weight: bold;">Terms & Conditions</h4>
+        <ul style="font-size: 14px; line-height: 1.8; color: #333; background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <li style="margin-bottom: 12px;"><b style="color: #D4AF37;">WARRANTY:</b> 1 YEAR DOMESTIC WARRANTY, INCLUDING ONLY PARTS & LABOR DEFECTS BUT NOT THE DEFECTS DUE TO EXTERNAL CAUSES ACCIDENTAL OR PHYSICAL DAMAGES</li>
+            <li style="margin-bottom: 12px;"><b style="color: #D4AF37;">BANK DETAILS:</b> BANK OF INDIA A/C: 017820110000188 (IFSC: BKID0000178) BRANCH (VASAI WEST)</li>
+            <li style="margin-bottom: 12px;"><b style="color: #D4AF37;">GST NO:</b> 27AAICE7407Q1Z0 | <b style="color: #D4AF37;">PAN No:</b> AAICE7407Q</li>
+            <li style="margin-bottom: 12px;"><b style="color: #D4AF37;">PAYMENTS:</b> 50% ADVANCE WITH PURCHASE ORDER & 40% BEFORE DISPATCH & 10% BALANCE AFTER TESTING</li>
+            <li style="margin-bottom: 12px;"><b style="color: #D4AF37;">DELIVERY PERIOD:</b> WITHIN 3-4 MONTH WORKING DAYS FROM THE DATE OF CONFIRMED PO ALONG WITH ADVANCE</li>
         </ul>
-        <div style="text-align: center; margin-top: 30px; font-style: italic; color: #666;">
-            <p><strong>This is computer generated Quotation does not require any signature and stamp.</strong></p>
+        <div style="text-align: center; margin-top: 30px; padding: 15px; background: #f0f0f0; border-radius: 8px; border-left: 4px solid #D4AF37;">
+            <p style="margin: 0; font-size: 14px; color: #333; font-style: italic; font-weight: 600;">This is computer generated Quotation does not require any signature and stamp.</p>
         </div>
     </div>
 
