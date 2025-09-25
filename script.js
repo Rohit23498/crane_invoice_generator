@@ -1042,7 +1042,7 @@ class LuxuryEnhancement {
     }
 
     /**
-     * Create crane row with 5 columns (Crane Type, Capacity, Qty, Rate, Amount)
+     * Create crane row with 5 columns (Crane Type, Capacity, Qty, Rate)
      */
     createSimplifiedCraneRow(crane = '', capacity = '', qty = 0, rate = 0) {
         const div = document.createElement('div');
